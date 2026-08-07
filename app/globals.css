@@ -1,26 +1,202 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens — from design-tokens.json (DesignAssets export).
+ *
+ * Token names are kept 1:1 with the export so a regenerated file maps straight
+ * onto these declarations. Two deliberate exceptions, both to avoid silently
+ * redefining a Tailwind primitive out from under existing markup:
+ *   palette.black / palette.white  ->  --color-brand-black / --color-brand-white
+ *   borderRadius.full (8px)        ->  --radius-pill  (rounded-full stays a pill)
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Roc Grotesk is licensed, so it can't be self-hosted from here. Point this
+     at a next/font/local variable once the font files land in the repo — every
+     display-face rule below picks it up with no other edit. */
+  --font-roc-grotesk: "Roc Grotesk";
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@theme {
+  /* ------------------------------------------------------------ background */
+  --color-bg-primary: #111111;
+  --color-bg-secondary: #dadada;
+  --color-bg-3: #ffffff;
+  --color-bg-4: #e7e7e7;
+  --color-bg-5: #1863dc;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* ------------------------------------------------------------------ text */
+  --color-text-primary: #111111;
+  --color-text-secondary: #dadada;
+  --color-text-3: #999999;
+  --color-text-4: #212121;
+  --color-text-5: #000000;
+
+  /* --------------------------------------------------------------- palette */
+  --color-dark-gray: #1b1b1b;
+  --color-light-gray: #cccccc;
+  --color-mixed: #555555;
+  --color-brand-black: #090909;
+  --color-brand-white: #f4f4f4;
+  --color-blue: #0056a7;
+  --color-red: #ed6d40;
+  --color-green: #008000;
+  /* Card surface from the reference layout; not present in the token export. */
+  --color-steel: #6d96a2;
+
+  /* ------------------------------------------------------------ typography */
+  /* Roc Grotesk first so the licensed face wins the moment it exists;
+     Archivo (self-hosted, OFL) is the stand-in until then. */
+  /*
+   * Every var() here carries its own fallback on purpose. An undefined custom
+   * property makes the whole declaration invalid at computed-value time — not
+   * just that one entry — so a single missing font variable drops the entire
+   * stack to the browser default (Times), rather than to the next name in the
+   * list. The inline fallbacks keep a missing variable a non-event.
+   */
+  --font-display: var(--font-roc-grotesk, "Roc Grotesk"),
+    var(--font-archivo, Archivo), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-azeret-mono, "Azeret Mono"), ui-monospace,
+    SFMono-Regular, Menlo, monospace;
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+
+  --text-size1: 11.008px;
+  --text-size2: 12px;
+  --text-size3: 14px;
+  --text-size4: 15.008px;
+  --text-size5: 16px;
+  --text-size6: 18px;
+  --text-size7: 20px;
+  --text-size8: 22px;
+  --text-size9: 24px;
+  --text-size10: 30px;
+
+  /* The export tops out at 30px because it only sampled resolved body copy —
+     the display sizes are fluid, so they're expressed as clamps here. */
+  /* The house easing — slight overshoot at the end, used for every
+     state change so the header, panels and reveals all move alike. */
+  --ease-brand: cubic-bezier(0.62, 0.16, 0.13, 1.01);
+
+  --text-display: clamp(2.5rem, 7.2vw, 6.5rem);
+  --text-display-sm: clamp(1.75rem, 3.4vw, 3rem);
+  --text-lead: clamp(1rem, 1.1vw, 1.25rem);
+
+  /* --------------------------------------------------------------- radius */
+  --radius-sm: 1px;
+  --radius-md: 3.008px;
+  --radius-lg: 4px;
+  --radius-xl: 20px;
+  --radius-2xl: 6px;
+  --radius-pill: 8px;
+
+  /* -------------------------------------------------------------- shadows */
+  --shadow-sm: rgb(136, 136, 136) 0px 0px 1px 0px;
+  --shadow-md: rgba(172, 171, 171, 0.3) 0px -1px 10px 0px;
+  --shadow-lg: rgba(0, 0, 0, 0.3) 0px 32px 68px 0px;
+  --shadow-xl: rgba(0, 0, 0, 0.2) 1px 1px 4px 0px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  font-family: var(--font-display);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* The header is fixed, so anchor targets have to clear it. */
+[id] {
+  scroll-margin-top: 6rem;
+}
+
+/*
+ * Scroll reveals. <Reveal> flips data-revealed on its wrapper when it enters
+ * the viewport; everything marked data-reveal inside it rises into place.
+ * Children stagger by setting --reveal-delay.
+ *
+ * Both rules sit inside the motion query, so a reduced-motion visitor never
+ * gets the hidden start state at all — there is nothing to un-hide.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  /*
+   * `translate` is listed alongside `transform` on purpose: Tailwind v4's
+   * translate/scale/rotate utilities set those individual properties, not
+   * `transform`. Leaving them out means any hover lift on a revealed element
+   * inherits this shorthand's property list and snaps with no easing.
+   */
+  [data-reveal] {
+    transition-property: opacity, transform, translate, scale, rotate, clip-path;
+    transition-duration: 800ms;
+    transition-timing-function: var(--ease-brand);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  [data-revealed="false"] [data-reveal] {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  /* Panels wipe up from their own bottom edge instead of sliding. */
+  [data-revealed="false"] [data-reveal="wipe"] {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(0 0 100% 0);
+  }
+
+  [data-reveal="wipe"] {
+    clip-path: inset(0 0 0 0);
+  }
+
+  /*
+   * Dot-field hover. Each <g> band carries its own offset and delay (set by
+   * DotArt), so one rule ripples the whole field. `transform-box: view-box`
+   * makes the px offsets resolve against the SVG's coordinate system rather
+   * than each band's own bounding box.
+   */
+  .dot-art g {
+    transform-box: view-box;
+    transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--dot-delay, 0ms);
+  }
+
+  .dot-art-host:hover .dot-art g,
+  .dot-art-host:focus-within .dot-art g {
+    transform: translate(var(--dx, 0), var(--dy, 0));
+  }
+}
+
+/*
+ * Panel accordion. The row splits four ways at rest; hovering one panel opens
+ * it to 40% and squeezes its neighbours to 20% each. Done with :hover on the
+ * row rather than per-panel state so it needs no JS and no `:has()`.
+ *
+ * Outside the reduced-motion query — the widths still respond, they just jump
+ * rather than glide, which keeps the interaction legible either way.
+ */
+@media (min-width: 64rem) {
+  .panel-row > * {
+    width: 25%;
+    flex: none;
+  }
+
+  .panel-row:hover > * {
+    width: 20%;
+  }
+
+  .panel-row > *:hover {
+    width: 40%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .panel-row > * {
+      transition: width 500ms 100ms var(--ease-brand);
+    }
+  }
+}
+
+::selection {
+  background: var(--color-bg-5);
+  color: var(--color-brand-white);
 }

@@ -1,0 +1,367 @@
+/*
+ * Launch intro — pure CSS, no JS drives the animation.
+ *
+ * Timeline (ms from first paint, total 2600):
+ *    0 –  315   mark eases in
+ *  420 – 1040   ignition: engine flare builds, airframe rumbles
+ *  935 – 2600   liftoff: hard acceleration, then a steady climb
+ * 1560 – 2600   the mark splits on its midline; halves peel away and tumble out
+ * 1560 – 2600   the page opens along the same seam
+ *
+ * Only transform/opacity animate, so this runs on the compositor and stays
+ * smooth while React hydrates in the background.
+ */
+
+.overlay {
+  --ease-split: cubic-bezier(0.62, 0, 0.2, 1);
+  --ease-jettison: cubic-bezier(0.2, 0.6, 0.35, 1);
+  --split-at: 1560ms;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------- split panels */
+
+.panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;
+  background: var(--color-bg-primary);
+  will-change: transform;
+  animation: 2600ms both var(--ease-split);
+}
+
+.panelLeft {
+  left: 0;
+  animation-name: splitLeft;
+}
+
+.panelRight {
+  right: 0;
+  animation-name: splitRight;
+}
+
+/* glow thrown onto the panels by the engine, dying as the page opens */
+.panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    55% 50% at var(--glow-x) 48%,
+    rgba(255, 235, 210, 0.1),
+    transparent 70%
+  );
+  animation: glowOut 1500ms 500ms both ease-out;
+}
+
+.panelLeft::after {
+  --glow-x: 100%;
+}
+.panelRight::after {
+  --glow-x: 0%;
+}
+
+/* --------------------------------------------------------------- the cut */
+
+.seam {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.62) 28%,
+    rgba(255, 255, 255, 0.62) 72%,
+    transparent
+  );
+  transform-origin: top;
+  animation: seamCut 1000ms 1380ms both cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ------------------------------------------------------------ the vehicle */
+
+/* Full-bleed flex box so the mark stays centred without margin arithmetic;
+   the liftoff transform moves this whole box. */
+.rocket {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-brand-white);
+  will-change: transform;
+  animation: liftoff 2600ms both;
+}
+
+.airframe {
+  position: relative;
+  width: clamp(104px, 12vw, 176px);
+  aspect-ratio: 742 / 900;
+  animation: rumble 620ms 420ms both linear;
+}
+
+/* Each half is a full copy of the mark, clipped to one side. The clip is
+   applied in the element's own box, so it travels with the transform — which
+   is why this works for any artwork without splitting the path data. */
+.half {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  animation: 1040ms var(--split-at) both var(--ease-jettison);
+}
+
+.half svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.halfLeft {
+  clip-path: inset(0 49.85% 0 0);
+  transform-origin: 100% 88%;
+  animation-name: jettisonLeft;
+}
+
+.halfRight {
+  clip-path: inset(0 0 0 49.85%);
+  transform-origin: 0% 88%;
+  animation-name: jettisonRight;
+}
+
+/* ------------------------------------------------------------ engine */
+
+.flare {
+  position: absolute;
+  left: 50%;
+  top: 92%;
+  width: 34%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%) scale(0);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 250, 240, 0.8),
+    rgba(255, 205, 150, 0.4) 34%,
+    transparent 68%
+  );
+  animation: flare 1900ms 420ms both ease-out;
+}
+
+.trail {
+  position: absolute;
+  left: 50%;
+  top: 98%;
+  width: 13%;
+  height: 62vh;
+  margin-left: -6.5%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 236, 214, 0.42),
+    rgba(255, 255, 255, 0.08) 26%,
+    transparent 62%
+  );
+  transform-origin: top center;
+  transform: scaleY(0);
+  animation: trail 1150ms 900ms both ease-out;
+}
+
+/* ------------------------------------------------------------- keyframes */
+
+/*
+ * A real rocket doesn't ease — it squats on the pad, then accelerates hard and
+ * settles into a steady climb. The stops from 36% on are placed to trace that
+ * velocity curve, with linear interpolation between them so the spacing (not a
+ * bezier) is what defines the motion.
+ */
+@keyframes liftoff {
+  0% {
+    transform: translate3d(0, 46px, 0) scale(0.82);
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  12% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 1;
+    animation-timing-function: ease-in-out;
+  }
+  28% {
+    transform: translate3d(0, 14px, 0) scale(0.97);
+    animation-timing-function: ease-out;
+  }
+  36% {
+    transform: translate3d(0, 4px, 0) scale(1);
+    animation-timing-function: linear;
+  }
+  44% {
+    transform: translate3d(0, -3vh, 0) scale(1.01);
+    animation-timing-function: linear;
+  }
+  52% {
+    transform: translate3d(0, -11vh, 0) scale(1.02);
+    animation-timing-function: linear;
+  }
+  60% {
+    transform: translate3d(0, -22vh, 0) scale(1.03);
+    animation-timing-function: linear;
+  }
+  69% {
+    transform: translate3d(0, -38vh, 0) scale(1.05);
+    animation-timing-function: linear;
+  }
+  81% {
+    transform: translate3d(0, -60vh, 0) scale(1.07);
+    animation-timing-function: linear;
+  }
+  100% {
+    transform: translate3d(0, -95vh, 0) scale(1.1);
+  }
+}
+
+@keyframes rumble {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  15% {
+    transform: translate3d(-1.5px, 1px, 0);
+  }
+  30% {
+    transform: translate3d(2px, -1px, 0);
+  }
+  45% {
+    transform: translate3d(-2px, -1.5px, 0);
+  }
+  60% {
+    transform: translate3d(1.5px, 1.5px, 0);
+  }
+  75% {
+    transform: translate3d(-1px, 1px, 0);
+  }
+  88% {
+    transform: translate3d(1px, -1px, 0);
+  }
+}
+
+/* Fairing separation: peel outward, tumble, and fall behind the ascent. */
+@keyframes jettisonLeft {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(-46vw, 10vh, 0) rotate(-26deg);
+  }
+}
+
+@keyframes jettisonRight {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  100% {
+    transform: translate3d(46vw, 10vh, 0) rotate(26deg);
+  }
+}
+
+@keyframes flare {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(0.75);
+    opacity: 0.85;
+  }
+  48% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes trail {
+  0% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  22% {
+    transform: scaleY(0.3);
+    opacity: 1;
+  }
+  70% {
+    transform: scaleY(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scaleY(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes seamCut {
+  0% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  32% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
+}
+
+@keyframes glowOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Panels hold until the mark splits (1150/2600 = 44%), then part. */
+@keyframes splitLeft {
+  0%,
+  60% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-101%, 0, 0);
+  }
+}
+
+@keyframes splitRight {
+  0%,
+  60% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(101%, 0, 0);
+  }
+}
+
+/* ------------------------------------------------------------ preferences */
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    display: none;
+  }
+}
+
+/* Set by the inline script in the layout when the intro already played this
+   session. Hides the overlay in the very first paint, before the effect that
+   unmounts it has a chance to run — otherwise a repeat load flashes it. */
+:global(html.intro-seen) .overlay {
+  display: none;
+}
