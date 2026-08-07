@@ -23,14 +23,54 @@ const archivo = Archivo({
   subsets: ["latin"],
 });
 
+const TITLE =
+  "Dentsu Data Artist Mongol — AI, Data Engineering & Analytics in Mongolia";
+
+const DESCRIPTION =
+  "Dentsu Data Artist Mongol LLC builds AI solutions, data engineering and analytics, R&D proofs of concept and digital marketing for enterprises in Mongolia — backed by the dentsu network.";
+
+// Resolves the origin that relative metadata URLs are composed against. Falls
+// back to the deployment's own URL, so previews advertise themselves rather
+// than the production domain; set NEXT_PUBLIC_SITE_URL once a domain exists.
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000");
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
-    default:
-      "Dentsu Data Artist Mongol — AI, Data Engineering & Analytics in Mongolia",
+    default: TITLE,
     template: "%s | Dentsu Data Artist Mongol",
   },
-  description:
-    "Dentsu Data Artist Mongol LLC builds AI solutions, data engineering and analytics, R&D proofs of concept and digital marketing for enterprises in Mongolia — backed by the dentsu network.",
+  description: DESCRIPTION,
+  keywords: [
+    "AI solutions Mongolia",
+    "data engineering",
+    "data analytics",
+    "digital marketing Mongolia",
+    "dentsu",
+    "Dentsu Data Artist Mongol",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "Dentsu Data Artist Mongol",
+    title: TITLE,
+    description: DESCRIPTION,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 // Runs before first paint so a repeat load never flashes the intro overlay.
