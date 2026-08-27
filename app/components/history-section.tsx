@@ -37,7 +37,7 @@ const HISTORY = [
 
 export default function HistorySection() {
   return (
-    <section id="history" className="bg-bg-4 text-text-primary">
+    <section id="history" className="surface-lift bg-bg-4 text-text-primary">
       <div className="mx-auto max-w-[1600px] px-6 py-32">
         <Reveal className="grid gap-12 md:grid-cols-2 md:gap-20">
           <div>

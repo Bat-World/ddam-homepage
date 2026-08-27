@@ -1,7 +1,9 @@
 /**
  * CTA styled as a label inside four corner brackets — the brackets are drawn as
  * two-sided pseudo-boxes per corner rather than a full outline, so the frame
- * reads as registration marks instead of a button. On hover they widen.
+ * reads as registration marks instead of a button. On hover they widen, and
+ * the nav's hover mark lights up in front of the label so a CTA and a nav link
+ * answer the pointer the same way.
  *
  * Colour comes from `currentColor` on the link, so the brackets follow whatever
  * text colour the surrounding surface sets.
@@ -22,7 +24,7 @@ export default function BracketLink({
   return (
     <a
       href={href}
-      className={`group relative inline-flex items-center px-8 py-4 font-mono text-size2 tracking-[0.18em] uppercase transition-opacity hover:opacity-70 ${className}`}
+      className={`group hover-mark hover-mark-cta relative inline-flex items-center px-8 py-4 font-mono text-size2 tracking-[0.18em] uppercase ${className}`}
     >
       <span
         aria-hidden="true"
@@ -32,7 +34,9 @@ export default function BracketLink({
         aria-hidden="true"
         className={`${CORNER} before:top-0 before:right-0 before:border-t before:border-r after:bottom-0 after:left-0 after:border-b after:border-l`}
       />
-      {children}
+      <span className="transition-transform duration-300 ease-[var(--ease-brand)] motion-safe:group-hover:translate-x-[3px]">
+        {children}
+      </span>
     </a>
   );
 }

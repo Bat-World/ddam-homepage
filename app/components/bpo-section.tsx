@@ -2,12 +2,15 @@ import Reveal from "./reveal";
 import { stagger } from "./stagger";
 
 /**
+ * Not currently mounted — see the note where it used to sit in app/page.tsx.
+ * Kept intact so it can go back in unchanged.
+ *
  * The digital marketing practice in detail: the four BPO operations the team
  * runs for advertisers, and the four-year arc from launch to today.
  *
- * It sits directly under the service orbit, which introduces digital marketing
- * in one paragraph — this is the band that backs that paragraph up, so it
- * stays adjacent rather than filed under About.
+ * Its place is directly under the service orbit, which introduces digital
+ * marketing in one paragraph — this is the band that backs that paragraph up,
+ * so it belongs adjacent rather than filed under About.
  */
 
 const OPERATIONS = [

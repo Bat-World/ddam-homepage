@@ -57,9 +57,9 @@ export default function SmoothScroll() {
       e.preventDefault();
       /* Read the offset off the target rather than keeping a copy of it here.
          `scroll-margin-top` is what a native jump would honour, so taking it
-         from the computed style keeps both paths identical and lets a section
-         opt out of the header offset in CSS alone — which the orbit does, since
-         it pins a full-viewport stage that has to land flush. */
+         from the computed style keeps both paths identical and leaves the
+         landing rules where they belong: the stylesheet decides what each kind
+         of target clears, and this handler carries none of that knowledge. */
       const margin = parseFloat(
         getComputedStyle(target).scrollMarginTop || "0",
       );

@@ -14,7 +14,7 @@ const DETAILS = [
 
 export default function ContactSection() {
   return (
-    <section id="contact" className="bg-bg-primary">
+    <section id="contact" className="surface-lift bg-bg-primary">
       <Reveal className="mx-auto max-w-[1600px] px-6 py-32">
         <p
           data-reveal

@@ -35,7 +35,7 @@ const COLUMNS = [
 
 export default function SiteFooter() {
   return (
-    <footer className="border-t border-mixed/50 bg-brand-black">
+    <footer className="surface-lift border-t border-mixed/50 bg-brand-black">
       <Reveal className="mx-auto max-w-[1600px] px-6 py-20">
         <div className="grid gap-14 md:grid-cols-[1.4fr_repeat(3,1fr)] md:gap-10">
           <div data-reveal>
@@ -76,10 +76,16 @@ export default function SiteFooter() {
           ))}
         </div>
 
-        <p className="mt-20 border-t border-mixed/40 pt-8 font-mono text-size1 tracking-[0.12em] text-text-3 uppercase">
-          © {new Date().getFullYear()} Dentsu Data Artist Mongol LLC. All rights
-          reserved.
-        </p>
+        <div className="mt-20 flex flex-col gap-4 border-t border-mixed/40 pt-8 font-mono text-size1 tracking-[0.12em] text-text-3 uppercase sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {new Date().getFullYear()} Dentsu Data Artist Mongol LLC. All
+            rights reserved.
+          </p>
+          <p className="flex items-center gap-2">
+            <span aria-hidden="true" className="h-px w-6 bg-mixed/60" />
+            Made by Bat-Erdene.D
+          </p>
+        </div>
       </Reveal>
     </footer>
   );

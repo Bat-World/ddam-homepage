@@ -1,5 +1,4 @@
 import AboutSection from "./components/about-section";
-import BpoSection from "./components/bpo-section";
 import CareersSection from "./components/careers-section";
 import ContactSection from "./components/contact-section";
 import CultureSection from "./components/culture-section";
@@ -21,7 +20,14 @@ export default function Home() {
       </RisePanel>
 
       <ServiceOrbit />
-      <BpoSection />
+      {/*
+        BpoSection is parked, not deleted — see app/components/bpo-section.tsx.
+        It details the digital marketing division at a depth no other division
+        can currently match, and a page that gives one of four practices its own
+        band reads as a claim about what the company mostly does. It goes back
+        in here the day AI, systems and global have material of the same weight;
+        restoring it is this line plus the import.
+      */}
       <AboutSection />
       <HistorySection />
       <NewsSection />

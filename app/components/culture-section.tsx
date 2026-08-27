@@ -60,7 +60,7 @@ const REASONS = [
 
 export default function CultureSection() {
   return (
-    <section id="culture" className="bg-bg-secondary text-text-primary">
+    <section id="culture" className="surface-lift bg-bg-secondary text-text-primary">
       <div className="mx-auto max-w-[1600px] px-6 py-32">
         <Reveal className="grid gap-12 md:grid-cols-2 md:gap-20">
           <div>

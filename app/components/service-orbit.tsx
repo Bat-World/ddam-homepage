@@ -228,7 +228,6 @@ export default function ServiceOrbit() {
   return (
     <section
       id="services"
-      data-anchor="flush"
       className="bg-bg-secondary text-text-primary"
     >
       <div

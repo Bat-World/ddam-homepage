@@ -49,7 +49,7 @@ const PROFILE = [
 
 export default function AboutSection() {
   return (
-    <section id="about" className="bg-bg-primary">
+    <section id="about" className="surface-lift bg-bg-primary">
       <div className="mx-auto max-w-[1600px] px-6 py-32">
         <Reveal>
           <p

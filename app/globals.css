@@ -111,19 +111,33 @@ html {
   scroll-behavior: smooth;
 }
 
-/* The header is fixed, so anchor targets have to clear it. */
+/* The header is fixed, so an arbitrary anchor target has to clear it. */
 [id] {
   scroll-margin-top: 6rem;
 }
 
 /*
- * Except where the section is a full-viewport composition that frames itself.
- * The orbit pins a stage exactly one viewport tall and centres its card in it,
- * so landing 6rem short leaves the tail of the previous section on screen and
- * pushes the whole orbit that far below centre. It wants the track's top edge
- * at the top of the screen, header floating over it as it does everywhere else.
+ * A section is not an arbitrary target, and lands flush instead.
+ *
+ * Clearing the header is the wrong instinct here, because a section already
+ * clears it from the inside: every band on this page opens on at least 7rem of
+ * padding, so its first line sits below the bar with the top edge at the top of
+ * the screen. Holding back another 6rem doesn't reveal the section — it reveals
+ * the last 6rem of the section before it, which is the one thing the visitor
+ * just asked to leave. It also hides the seam: the rounded corner a section
+ * lifts over its predecessor with is at that top edge, and landing short scrolls
+ * straight past it.
+ *
+ * Flush also frames the follow-on. Careers is shorter than a viewport, so
+ * arriving at its top edge brings the head of People & Culture onto the screen
+ * under it — two halves of the same subject, which is how they're written.
+ *
+ * The orbit needed this before anything else did (it pins a stage exactly one
+ * viewport tall and centres its card in it, so 6rem of debt pushed the whole
+ * composition off-centre) and carried a `data-anchor="flush"` of its own to get
+ * it. That attribute is gone: what it asked for is now what a section does.
  */
-[data-anchor="flush"] {
+section[id] {
   scroll-margin-top: 0;
 }
 
@@ -348,6 +362,84 @@ header[data-hidden="true"]:focus-within {
   content: none;
 }
 
+/*
+ * The CTA variant. BracketLink already draws its own registration marks — its
+ * four corners are permanent and widen on hover — so it takes only the dot and
+ * the flicker from this vocabulary; a second frame on top of the brackets is
+ * one frame too many.
+ *
+ * No lane is reserved either: the button's own px-8 already holds more room
+ * than the mark needs, so the dot is dropped into it. That padding has to be
+ * restated here because this file loads after Tailwind and would otherwise
+ * narrow the button on the base rule's 1.15em.
+ */
+.hover-mark-cta {
+  padding-left: 2rem;
+}
+
+.hover-mark-cta::before {
+  left: 1.25em;
+}
+
+/*
+ * On the CTA the frame slot is free, so it's spent on a ring instead: the dot
+ * lands and one ring leaves it, like a mark being stamped. It fires once per
+ * hover rather than looping — a pulse that repeats reads as a status light
+ * asking for attention, not as a response to the pointer.
+ *
+ * Everything the frame rule set has to be undone here (the inset box, the
+ * corner mask); opacity and transform don't, because the animation outranks
+ * the plain declarations in `.hover-mark:hover::after` whatever the order.
+ */
+.hover-mark-cta::after {
+  content: "";
+  inset: auto;
+  top: 50%;
+  left: 1.25em;
+  width: 0.42em;
+  height: 0.42em;
+  margin-top: -0.21em;
+  border-radius: 50%;
+  background: none;
+  mask-image: none;
+  transform: scale(1);
+}
+
+/* The dot arrives from behind the label's edge rather than fading in on the
+   spot, so it reads as coming to meet the pointer. */
+.hover-mark-cta::before {
+  transform: translateX(-0.45em) scale(0.25);
+}
+
+.hover-mark-cta:hover::before,
+.hover-mark-cta:focus-visible::before {
+  transform: translateX(0) scale(1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hover-mark-cta:hover::after,
+  .hover-mark-cta:focus-visible::after {
+    animation: mark-ring 620ms var(--ease-brand) both;
+  }
+}
+
+@keyframes mark-ring {
+  0% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  /* Held dark until the dot has actually landed — a ring that leaves before
+     the mark exists has nothing to leave from. */
+  22% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3.4);
+  }
+}
+
 .hover-mark:hover::before,
 .hover-mark:focus-visible::before {
   opacity: 1;
@@ -436,4 +528,164 @@ header[data-hidden="true"]:focus-within {
 ::selection {
   background: var(--color-bg-5);
   color: var(--color-brand-white);
+}
+
+/*
+ * The work-environment reel — see workspace-section.tsx for the mechanism.
+ *
+ * `--reel` is the scroll position in zones, written on .zone-reel every frame
+ * by that component. Unset — before the first frame, or with JS off — it
+ * resolves to 0, which is the first zone centred and legible. The fallback is a
+ * usable state, never a blank one.
+ *
+ * The reel is positioned so that zone 0 sits centred at --reel: 0, and then
+ * simply travels one step per zone. Doing the centring in `top` rather than
+ * folding it into the transform keeps the moving part to a single term, which
+ * is the one that has to stay cheap.
+ */
+.zone-reel-frame {
+  --zone-h: min(36svh, 17rem);
+  --zone-gap: 1.25rem;
+  --zone-step: calc(var(--zone-h) + var(--zone-gap));
+
+  position: relative;
+  /* Fills the row the stage hands it, rather than claiming a height of its own:
+     the header above it is a fixed cost, and on a short viewport the reel is
+     what has to give. */
+  height: 100%;
+  min-height: calc(var(--zone-h) * 1.6);
+  overflow: hidden;
+  /* The neighbours dissolve at the frame's edges instead of being cut off —
+     a hard edge reads as a window with three pictures in it, this reads as one
+     column passing through. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 22%,
+    #000 78%,
+    transparent
+  );
+}
+
+@media (min-width: 1024px) {
+  .zone-reel-frame {
+    --zone-h: min(48svh, 26rem);
+    --zone-gap: 1.75rem;
+  }
+}
+
+.zone-reel {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(50% - var(--zone-h) / 2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--zone-gap);
+  transform: translateY(calc(var(--reel, 0) * var(--zone-step) * -1));
+}
+
+.zone-frame {
+  position: relative;
+  flex: none;
+  height: var(--zone-h);
+  overflow: hidden;
+  /* The same corner the sections lift over each other with. Photography is the
+     only rectangle on this page that wasn't already rounded, and a hard-edged
+     picture inside a page of soft-edged surfaces reads as pasted on. */
+  border-radius: var(--radius-xl);
+}
+
+/*
+ * Colour is the reel's signal: the photograph at centre is the one being shown,
+ * and it is the only one in colour. The neighbours stay grey and dim so they
+ * read as what's coming and what's been, not as three things competing.
+ *
+ * The transition is deliberately slower than the caption's — the picture should
+ * still be warming up as the words finish arriving, so the two don't land on
+ * the same beat and flatten into a single switch.
+ */
+.zone-photo {
+  filter: grayscale(1) contrast(1.06);
+  opacity: 0.4;
+}
+
+.zone-frame[data-active="true"] .zone-photo {
+  filter: none;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .zone-photo {
+    transition:
+      filter 700ms var(--ease-brand),
+      opacity 700ms var(--ease-brand);
+  }
+}
+
+/*
+ * Zone captions. Same crossfade the orbit cards use, and for the same reason —
+ * one column of copy handing off, not a set of blocks blinking in place. The
+ * travel is shorter here because the block is taller: a caption that slides a
+ * full 2.5rem out of a stack this size reads as falling rather than passing.
+ *
+ * The opacity switch sits outside the motion query so the section still works
+ * under reduced motion — it cuts between zones instead of gliding.
+ */
+.zone-copy[data-active="false"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .zone-copy {
+    transition:
+      opacity 460ms var(--ease-brand),
+      transform 640ms var(--ease-brand);
+  }
+
+  /* The incoming caption waits for the outgoing one to clear, so two headings
+     are never stacked on each other mid-fade. */
+  .zone-copy[data-active="true"] {
+    transition-delay: 140ms;
+  }
+
+  .zone-copy[data-side="past"] {
+    transform: translateY(-1.5rem);
+  }
+
+  .zone-copy[data-side="ahead"] {
+    transform: translateY(1.5rem);
+  }
+}
+
+/*
+ * Surface lift — the incoming section rides over the one it replaces.
+ *
+ * Same 20px corner the rise panel opens with, reused deliberately: the page
+ * already says "a new surface arrives by rounding its top edge" once, at the
+ * hero, and every later change of colour should say it the same way rather
+ * than inventing a second idea of what a seam looks like.
+ *
+ * The negative margin is the whole trick. Rounded corners are notches, and a
+ * notch shows whatever is painted behind it — if this section merely started
+ * where the last one stopped, the corners would cut through to the page
+ * background instead of to the section above, which reads as a rendering fault
+ * on any surface that isn't #111. Pulling up by exactly the radius puts the
+ * previous section under the notches, so the corners cut to it.
+ *
+ * `position: relative` for the paint order: these sections carry positioned
+ * children, and the lift has to win against the section above it whatever
+ * those children do.
+ *
+ * It goes on every seam, including the three at the foot of the page where the
+ * two surfaces are only a few points of grey apart. Those corners are barely a
+ * transition on their own — but a rounded corner that appears at six seams and
+ * then stops for the last three reads as an omission, and the footer's hairline
+ * gives the eye enough of an edge to see the curve against.
+ */
+.surface-lift {
+  position: relative;
+  margin-top: calc(var(--radius-xl) * -1);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
 }

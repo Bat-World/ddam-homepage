@@ -32,7 +32,7 @@ const NEWS = [
 
 export default function NewsSection() {
   return (
-    <section id="news" className="bg-dark-gray">
+    <section id="news" className="surface-lift bg-dark-gray">
       <Reveal className="mx-auto max-w-[1600px] px-6 py-32">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <p

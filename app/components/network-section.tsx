@@ -22,7 +22,7 @@ const GROUP = [
 
 export default function NetworkSection() {
   return (
-    <section id="network" className="bg-bg-primary">
+    <section id="network" className="surface-lift bg-bg-primary">
       <Reveal className="mx-auto max-w-[1600px] px-6 py-32">
         <div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
           <div>

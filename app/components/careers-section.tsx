@@ -5,7 +5,7 @@ import { stagger } from "./stagger";
 /** Recruitment band — the one full-colour break in the lower half of the page. */
 export default function CareersSection() {
   return (
-    <section id="careers" className="bg-red text-brand-black">
+    <section id="careers" className="surface-lift bg-red text-brand-black">
       <Reveal className="mx-auto grid max-w-[1600px] gap-12 px-6 py-28 md:grid-cols-2 md:items-end md:gap-20">
         <div>
           <p

@@ -1,5 +1,5 @@
 import BracketLink from "./bracket-link";
-import DotSphere from "./dot-sphere";
+import DotToono from "./dot-toono";
 import LogoMark from "./logo-mark";
 import Reveal from "./reveal";
 import { stagger } from "./stagger";
@@ -22,14 +22,21 @@ export default function Hero() {
       id="top"
       className="relative flex min-h-svh flex-col overflow-hidden px-6 pb-8"
     >
-      <DotSphere className="pointer-events-none absolute top-1/2 left-1/2 aspect-square w-[min(84vw,780px)] -translate-x-1/2 -translate-y-[56%]" />
+      <DotToono className="pointer-events-none absolute top-1/2 left-1/2 aspect-square w-[min(84vw,780px)] -translate-x-1/2 -translate-y-[56%]" />
 
-      <Reveal data-intro-gate className="relative flex flex-1 items-center pt-32">
+      <Reveal
+        data-intro-gate
+        className="relative flex flex-1 items-center pt-32"
+      >
         <h1 className="w-full font-display text-display leading-[0.94] font-medium tracking-[-0.02em] text-bg-secondary uppercase">
           <span data-reveal style={stagger(0)} className="block">
             Building AI that
           </span>
-          <span data-reveal style={stagger(1, 140)} className="block text-right">
+          <span
+            data-reveal
+            style={stagger(1, 140)}
+            className="block text-right"
+          >
             moves business forward
           </span>
         </h1>
