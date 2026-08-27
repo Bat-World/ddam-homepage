@@ -1,21 +1,28 @@
 /*
  * Launch intro — pure CSS, no JS drives the animation.
  *
- * Timeline (ms from first paint, total 2600):
+ * Timeline (ms from the unpause, total 2600):
  *    0 –  315   mark eases in
- *  420 – 1040   ignition: engine flare builds, airframe rumbles
+ *   60 – 1160   countdown steps 03 · 02 · 01 · liftoff · ascent
+ *  420 – 1040   ignition: flare builds, pad flashes, airframe rumbles, camera shakes
+ *  700 – 1820   starfield streams down past the vehicle
  *  935 – 2600   liftoff: hard acceleration, then a steady climb
+ * 1400 – 2600   motion blur ramps with velocity
+ * 1480 – 1770   telemetry retires
  * 1560 – 2600   the mark splits on its midline; halves peel away and tumble out
- * 1560 – 2600   the page opens along the same seam
+ * 1560 – 2600   the page opens along the same seam, engine light raking across it
  *
- * Only transform/opacity animate, so this runs on the compositor and stays
- * smooth while React hydrates in the background.
+ * Everything animates transform / opacity / filter, so it runs on the
+ * compositor and stays smooth while React hydrates in the background.
  */
 
 .overlay {
   --ease-split: cubic-bezier(0.62, 0, 0.2, 1);
   --ease-jettison: cubic-bezier(0.2, 0.6, 0.35, 1);
   --split-at: 1560ms;
+  /* The vehicle's size, shared so the pad effects can sit at its base. */
+  --mark-w: clamp(104px, 12vw, 176px);
+  --mark-h: calc(var(--mark-w) * 900 / 742);
   position: fixed;
   inset: 0;
   z-index: 100;
@@ -23,8 +30,42 @@
   pointer-events: none;
 }
 
+/*
+ * The whole sequence starts paused, and the page unpauses it (html.intro-go).
+ *
+ * A CSS animation runs on the document timeline whether or not frames are
+ * being painted. On a cold first load the main thread is busy for a second or
+ * more — bundle parse, hydration, font swap — and the timeline burns through
+ * most of the 2600ms behind that block, so the first frame the visitor
+ * actually sees is the tail of the scene, halves already flung off screen.
+ * (A reload hides the difference: everything is warm, so nothing is dropped.)
+ *
+ * Holding at frame 0 costs nothing to look at — frame 0 is the closed doors —
+ * and guarantees the sequence begins on a frame that gets painted.
+ */
+.overlay,
+.overlay *,
+.overlay *::before,
+.overlay *::after {
+  animation-play-state: paused;
+}
+
+:global(html.intro-go) .overlay,
+:global(html.intro-go) .overlay *,
+:global(html.intro-go) .overlay *::before,
+:global(html.intro-go) .overlay *::after {
+  animation-play-state: running;
+}
+
 /* ---------------------------------------------------------- split panels */
 
+/*
+ * Shared timing, with the name set per side below — as longhands, not as a
+ * nameless `animation:` shorthand. The build's CSS minifier normalises a
+ * shorthand with no animation-name down to `animation: none` and throws the
+ * duration away with it, so the per-side name then applies with a 0s duration
+ * and the animation silently never runs.
+ */
 .panel {
   position: absolute;
   top: 0;
@@ -32,7 +73,9 @@
   width: 50.5%;
   background: var(--color-bg-primary);
   will-change: transform;
-  animation: 2600ms both var(--ease-split);
+  animation-duration: 2600ms;
+  animation-fill-mode: both;
+  animation-timing-function: var(--ease-split);
 }
 
 .panelLeft {
@@ -65,6 +108,45 @@
   --glow-x: 0%;
 }
 
+/*
+ * Engine light spilling into the gap. Each band sits just *outside* its panel's
+ * inner edge, so it travels with the door — the lit edge rakes across the page
+ * as the door withdraws, rather than the page appearing under a lifted curtain.
+ *
+ * The animation runs the full 2600ms and holds the band at zero for the first
+ * 58% rather than being a short cue with a delay: a delayed `both` fill applies
+ * its *first* keyframe while waiting, which would paint both bands over the
+ * closed doors from the very first frame as a bright column down the middle.
+ */
+.panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 15vw;
+  animation: rake 2600ms both linear;
+}
+
+.panelLeft::before {
+  left: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 236, 214, 0.16),
+    rgba(255, 236, 214, 0.04) 40%,
+    transparent
+  );
+}
+
+.panelRight::before {
+  right: 100%;
+  background: linear-gradient(
+    to left,
+    rgba(255, 236, 214, 0.16),
+    rgba(255, 236, 214, 0.04) 40%,
+    transparent
+  );
+}
+
 /* --------------------------------------------------------------- the cut */
 
 .seam {
@@ -85,6 +167,168 @@
   animation: seamCut 1000ms 1380ms both cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* ------------------------------------------------------------ the camera */
+
+/*
+ * Everything filmed sits in here: a slow push-in for the whole shot, with the
+ * ignition rumble and the separation jolt shaken into the same keyframes. One
+ * animation rather than two, because two would both be writing `transform`.
+ */
+.camera {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  animation: camera 2600ms both linear;
+}
+
+/* ------------------------------------------------------------- starfield */
+
+/*
+ * Three parallax layers, each one element carrying its whole field as a
+ * box-shadow list. Offsets are in vw/vh so the field is viewport-relative, and
+ * the layers extend well above the fold so the downward drift never runs out
+ * of stars. The near layer's dots are elongated rather than scaled — scaling
+ * would stretch the shadow offsets along with them.
+ */
+.sky {
+  position: absolute;
+  inset: 0;
+  animation: skyFade 2600ms both linear;
+}
+
+.starLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  will-change: transform;
+}
+
+.starsFar {
+  color: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    7vw -44vh, 21vw -21vh, 34vw -37vh, 46vw -6vh, 58vw -30vh, 71vw -48vh,
+    83vw -16vh, 95vw -35vh, 4vw 4vh, 17vw 24vh, 29vw 2vh, 41vw 33vh, 53vw 11vh,
+    66vw 29vh, 78vw 7vh, 90vw 20vh, 11vw 47vh, 24vw 63vh, 36vw 42vh, 49vw 72vh,
+    61vw 54vh, 74vw 67vh, 87vw 39vh, 97vw 59vh, 14vw 85vh, 43vw 93vh, 69vw 78vh,
+    92vw 97vh;
+  animation: driftFar 1900ms 700ms both linear;
+}
+
+.starsMid {
+  width: 1.5px;
+  height: 1.5px;
+  color: rgba(255, 252, 246, 0.58);
+  box-shadow:
+    9vw -33vh, 26vw -12vh, 39vw -47vh, 54vw -24vh, 68vw -5vh, 81vw -39vh,
+    94vw -18vh, 2vw 15vh, 18vw 37vh, 32vw 9vh, 47vw 26vh, 60vw 45vh, 73vw 17vh,
+    86vw 33vh, 6vw 58vh, 23vw 76vh, 44vw 61vh, 63vw 88vh, 79vw 69vh, 96vw 82vh;
+  animation: driftMid 1900ms 700ms both linear;
+}
+
+/*
+ * Streaks, so peak velocity reads on the field and not just the exhaust. The
+ * third value on each shadow is its blur radius — a crisp bar this size reads
+ * as a typographic tick rather than as a star going past, and per-shadow blur
+ * softens them without a `filter` over the whole viewport-sized layer.
+ */
+.starsNear {
+  width: 1px;
+  height: 11px;
+  border-radius: 1px;
+  color: rgba(255, 255, 255, 0.5);
+  box-shadow:
+    13vw -28vh 2px, 30vw -8vh 2px, 51vw -41vh 2px, 65vw -19vh 2px,
+    88vw -34vh 2px, 5vw 12vh 2px, 37vw 31vh 2px, 57vw 6vh 2px, 76vw 24vh 2px,
+    92vw 44vh 2px, 20vw 57vh 2px, 70vw 71vh 2px;
+  animation: driftNear 1500ms 1000ms both linear;
+}
+
+/* Edge falloff, tightening as the engine lights the middle of the frame. */
+.vignette {
+  position: absolute;
+  inset: 0;
+  /* Extra mid stops soften the ramp — a two-stop black gradient over a #111
+     ground bands visibly into concentric arcs at 8 bits per channel. */
+  background: radial-gradient(
+    76% 60% at 50% 50%,
+    transparent,
+    rgba(0, 0, 0, 0.14) 52%,
+    rgba(0, 0, 0, 0.3) 76%,
+    rgba(0, 0, 0, 0.44) 100%
+  );
+  animation: vignette 1600ms 380ms both ease-out;
+}
+
+/* --------------------------------------------------------------- the pad */
+
+/*
+ * Ignition on the ground. This is parked at the vehicle's *starting* base and
+ * left there — the exhaust wash and the dust it throws stay on the pad while
+ * the vehicle leaves, which is most of what makes the vehicle look like it left.
+ */
+.pad {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--mark-w) * 2.8);
+  aspect-ratio: 3 / 1;
+  margin-left: calc(var(--mark-w) * -1.4);
+  /* Centred a little below the nozzle, so the wash reads as hitting the ground
+     rather than as a disc the vehicle is sitting on. */
+  margin-top: calc(var(--mark-h) * 0.58);
+  transform: translateY(-50%);
+}
+
+.padFlash {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 240, 220, 0.22),
+    rgba(255, 190, 130, 0.08) 38%,
+    transparent 66%
+  );
+  animation: padFlash 1400ms 400ms both ease-out;
+}
+
+/* Dust rolling out sideways from under the nozzle. Kept very faint — at any
+   real opacity a soft ellipse this size stops reading as dust and starts
+   reading as an object. */
+.padDust {
+  position: absolute;
+  top: 34%;
+  bottom: 0;
+  width: 46%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(236, 220, 202, 0.055),
+    transparent 68%
+  );
+  /* Two separate ellipses read as two smudges; blurring merges them and their
+     neighbouring pad wash into one moving cloud. */
+  filter: blur(9px);
+  /* Longhands, for the same reason as .panel above. */
+  animation-duration: 1200ms;
+  animation-delay: 440ms;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.16, 0.9, 0.3, 1);
+}
+
+.padDustLeft {
+  left: 4%;
+  animation-name: dustLeft;
+}
+
+.padDustRight {
+  right: 4%;
+  animation-name: dustRight;
+}
+
 /* ------------------------------------------------------------ the vehicle */
 
 /* Full-bleed flex box so the mark stays centred without margin arithmetic;
@@ -102,8 +346,10 @@
 
 .airframe {
   position: relative;
-  width: clamp(104px, 12vw, 176px);
+  width: var(--mark-w);
   aspect-ratio: 742 / 900;
+  /* Gives the separating halves somewhere to tumble into. */
+  perspective: 900px;
   animation: rumble 620ms 420ms both linear;
 }
 
@@ -113,8 +359,7 @@
 .half {
   position: absolute;
   inset: 0;
-  will-change: transform;
-  animation: 1040ms var(--split-at) both var(--ease-jettison);
+  will-change: transform, filter;
 }
 
 .half svg {
@@ -123,16 +368,25 @@
   height: 100%;
 }
 
+/*
+ * Two animations per half, on different properties: the trajectory, and the
+ * blur-plus-rim-light. The blur starts before separation — at that point both
+ * halves still read as one mark, so blurring them is blurring the vehicle.
+ */
 .halfLeft {
   clip-path: inset(0 49.85% 0 0);
   transform-origin: 100% 88%;
-  animation-name: jettisonLeft;
+  animation:
+    jettisonLeft 1040ms var(--split-at) both var(--ease-jettison),
+    ascentGlow 1200ms 1400ms both linear;
 }
 
 .halfRight {
   clip-path: inset(0 0 0 49.85%);
   transform-origin: 0% 88%;
-  animation-name: jettisonRight;
+  animation:
+    jettisonRight 1040ms var(--split-at) both var(--ease-jettison),
+    ascentGlow 1200ms 1400ms both linear;
 }
 
 /* ------------------------------------------------------------ engine */
@@ -154,22 +408,176 @@
   animation: flare 1900ms 420ms both ease-out;
 }
 
+/*
+ * The bright, unstable core right at the nozzle. Combustion is not smooth.
+ *
+ * The blur is doing most of the work: a gradient-filled box has hard left and
+ * right edges no matter how soft its vertical falloff is, and at this size that
+ * reads as a solid dowel rather than as flame.
+ */
+.plume {
+  position: absolute;
+  left: 50%;
+  top: 95%;
+  width: 15%;
+  height: 30%;
+  margin-left: -7.5%;
+  border-radius: 50% 50% 44% 44% / 24% 24% 76% 76%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 253, 248, 0.95),
+    rgba(255, 216, 164, 0.5) 46%,
+    rgba(255, 150, 90, 0) 100%
+  );
+  filter: blur(3px);
+  transform-origin: top center;
+  transform: scaleY(0);
+  animation: plume 1700ms 440ms both linear;
+}
+
+/*
+ * The column of hot gas left behind. Same edge problem as the plume, and worse
+ * here because it's 62vh long — so the vertical gradient is paired with a mask
+ * that fades it out sideways, and the whole thing is blurred. Without both it
+ * reads as a pole running the height of the screen.
+ */
 .trail {
   position: absolute;
   left: 50%;
-  top: 98%;
-  width: 13%;
+  top: 97%;
+  width: 22%;
   height: 62vh;
-  margin-left: -6.5%;
+  margin-left: -11%;
   background: linear-gradient(
     to bottom,
-    rgba(255, 236, 214, 0.42),
-    rgba(255, 255, 255, 0.08) 26%,
-    transparent 62%
+    rgba(255, 236, 214, 0.34),
+    rgba(255, 245, 235, 0.07) 24%,
+    transparent 58%
   );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 34%,
+    #000 66%,
+    transparent
+  );
+  filter: blur(4px);
   transform-origin: top center;
   transform: scaleY(0);
   animation: trail 1150ms 900ms both ease-out;
+}
+
+/* ------------------------------------------------------- separation flash */
+
+/*
+ * The separation charge. This lives inside the airframe and is sized off the
+ * mark, so it fires *where the vehicle is* — pinned to the viewport instead, it
+ * blooms in the middle of the screen while the vehicle is already near the top
+ * of frame, which reads as a full-width grey disc rather than as an event on the
+ * thing that just came apart. Sits behind the halves so they stay crisp against
+ * it.
+ */
+.flash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 300%;
+  aspect-ratio: 1;
+  margin: -150% 0 0 -150%;
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(255, 252, 246, 0.9),
+    rgba(255, 226, 190, 0.28) 26%,
+    transparent 58%
+  );
+  opacity: 0;
+  animation: splitFlash 360ms 1500ms both ease-out;
+}
+
+/* ------------------------------------------------------------- telemetry */
+
+.hud {
+  position: absolute;
+  inset: auto 0 2rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0 1.5rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-size1);
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(244, 244, 244, 0.72);
+  animation: hud 2600ms both ease-out;
+}
+
+.hudBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+
+.hudRight {
+  align-items: flex-end;
+}
+
+.hudLabel {
+  color: rgba(244, 244, 244, 0.38);
+}
+
+/*
+ * Countdown. A column of readouts behind a one-line window, stepped one line
+ * at a time — `steps()` on an em-based translate, so the stops land exactly on
+ * line boundaries at any font size.
+ */
+.count {
+  --hud-line: 1.25em;
+  display: block;
+  height: var(--hud-line);
+  overflow: hidden;
+  color: var(--color-brand-white);
+}
+
+.countStrip {
+  display: block;
+  /* Five 280ms steps from 60ms, so "liftoff" is on screen for 900–1180ms and
+     the vehicle actually leaves the pad (935ms) while it reads. */
+  animation: tick 1400ms 60ms steps(5) both;
+}
+
+.countStrip span {
+  display: block;
+  height: var(--hud-line);
+  line-height: var(--hud-line);
+}
+
+.gauge {
+  position: relative;
+  display: block;
+  width: 84px;
+  height: 2px;
+  background: rgba(244, 244, 244, 0.16);
+  overflow: hidden;
+}
+
+.gauge::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-brand-white);
+  transform-origin: left;
+  transform: scaleX(0);
+  animation: gauge 800ms 935ms both cubic-bezier(0.4, 0, 0.9, 0.55);
+}
+
+/* ------------------------------------------------------------------- skip */
+
+/* Applied when the visitor dismisses the intro; React unmounts on its end. */
+.skip {
+  animation: skipOut 260ms both ease-out;
 }
 
 /* ------------------------------------------------------------- keyframes */
@@ -249,22 +657,233 @@
   }
 }
 
-/* Fairing separation: peel outward, tumble, and fall behind the ascent. */
-@keyframes jettisonLeft {
+/*
+ * Camera: a slow push across the whole shot, plus two handheld moments — the
+ * hold-down release at 16–40% (420–1040ms) and the separation jolt at 60%
+ * (1560ms). Amplitudes stay under 2px; the point is that the frame is being
+ * held, not that it's being thrown.
+ */
+@keyframes camera {
   0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  16% {
+    transform: scale(1.004) translate3d(0, 0, 0);
+  }
+  18% {
+    transform: scale(1.006) translate3d(0.6px, -0.8px, 0);
+  }
+  21% {
+    transform: scale(1.008) translate3d(-1.1px, 0.9px, 0);
+  }
+  24% {
+    transform: scale(1.011) translate3d(1.6px, 1.2px, 0);
+  }
+  27% {
+    transform: scale(1.014) translate3d(-1.8px, -1.3px, 0);
+  }
+  30% {
+    transform: scale(1.017) translate3d(1.4px, -1.1px, 0);
+  }
+  33% {
+    transform: scale(1.02) translate3d(-1px, 0.8px, 0);
+  }
+  36% {
+    transform: scale(1.023) translate3d(0.6px, 0.5px, 0);
+  }
+  40% {
+    transform: scale(1.026) translate3d(0, 0, 0);
+  }
+  59% {
+    transform: scale(1.036) translate3d(0, 0, 0);
+  }
+  61% {
+    transform: scale(1.038) translate3d(1.2px, -1px, 0);
+  }
+  64% {
+    transform: scale(1.04) translate3d(-0.9px, 0.7px, 0);
+  }
+  67% {
+    transform: scale(1.042) translate3d(0.4px, -0.3px, 0);
+  }
+  70% {
+    transform: scale(1.043) translate3d(0, 0, 0);
   }
   100% {
-    transform: translate3d(-46vw, 10vh, 0) rotate(-26deg);
+    transform: scale(1.05) translate3d(0, 0, 0);
+  }
+}
+
+/*
+ * The field has to be gone before the doors are meaningfully apart, or stars
+ * paint over the page showing through the gap. The panels use --ease-split, so
+ * at 70% of the timeline they have only travelled ~13% of their width.
+ */
+@keyframes skyFade {
+  0%,
+  27% {
+    opacity: 0;
+  }
+  46% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes driftFar {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 18vh, 0);
+  }
+}
+
+@keyframes driftMid {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 48vh, 0);
+  }
+}
+
+@keyframes driftNear {
+  from {
+    transform: translate3d(0, -10vh, 0);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  to {
+    transform: translate3d(0, 125vh, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes vignette {
+  0% {
+    opacity: 0.35;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes padFlash {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  22% {
+    opacity: 1;
+    transform: scale(0.9);
+  }
+  48% {
+    opacity: 0.75;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes dustLeft {
+  0% {
+    opacity: 0;
+    transform: translate3d(24%, 0, 0) scale(0.2);
+  }
+  25% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(-34%, -12%, 0) scale(1.2);
+  }
+}
+
+@keyframes dustRight {
+  0% {
+    opacity: 0;
+    transform: translate3d(-24%, 0, 0) scale(0.2);
+  }
+  25% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(34%, -12%, 0) scale(1.2);
+  }
+}
+
+/*
+ * Fairing separation: peel outward first, then tumble away from the camera.
+ * The receding translateZ is what stops this reading as two flat cards sliding
+ * sideways — the halves get smaller because they're further away, not scaled.
+ */
+@keyframes jettisonLeft {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  26% {
+    transform: translate3d(-7vw, -1vh, -40px) rotateY(-14deg) rotateZ(-5deg);
+  }
+  100% {
+    transform: translate3d(-48vw, 13vh, -340px) rotateY(-58deg) rotateZ(-26deg);
   }
 }
 
 @keyframes jettisonRight {
   0% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
+    transform: translate3d(0, 0, 0);
+  }
+  26% {
+    transform: translate3d(7vw, -1vh, -40px) rotateY(14deg) rotateZ(5deg);
   }
   100% {
-    transform: translate3d(46vw, 10vh, 0) rotate(26deg);
+    transform: translate3d(48vw, 13vh, -340px) rotateY(58deg) rotateZ(26deg);
+  }
+}
+
+/*
+ * Blur ramps with velocity; the drop-shadow is the separation charge catching
+ * the inside faces. Both live in one `filter` so they interpolate — a filter
+ * list only animates against an identically-shaped list, which is also why the
+ * zero stops spell out `blur(0px) drop-shadow(...)` instead of `none`.
+ */
+@keyframes ascentGlow {
+  0% {
+    filter: blur(0px) drop-shadow(0 0 0 rgba(255, 238, 216, 0));
+  }
+  13% {
+    filter: blur(0.6px) drop-shadow(0 0 0 rgba(255, 238, 216, 0));
+  }
+  27% {
+    filter: blur(1px) drop-shadow(0 0 10px rgba(255, 238, 216, 0.6));
+  }
+  55% {
+    filter: blur(1.4px) drop-shadow(0 0 4px rgba(255, 238, 216, 0.16));
+  }
+  100% {
+    filter: blur(2px) drop-shadow(0 0 0 rgba(255, 238, 216, 0));
   }
 }
 
@@ -287,6 +906,55 @@
   }
 }
 
+/* Irregular stops on purpose — an evenly-flickering flame reads as a loop. */
+@keyframes plume {
+  0% {
+    transform: scaleY(0) scaleX(0.6);
+    opacity: 0;
+  }
+  9% {
+    transform: scaleY(0.34) scaleX(0.85);
+    opacity: 0.8;
+  }
+  14% {
+    transform: scaleY(0.62) scaleX(1.02);
+    opacity: 1;
+  }
+  19% {
+    transform: scaleY(0.48) scaleX(0.92);
+  }
+  26% {
+    transform: scaleY(0.95) scaleX(1.06);
+  }
+  31% {
+    transform: scaleY(0.74) scaleX(0.96);
+  }
+  38% {
+    transform: scaleY(1.18) scaleX(1.08);
+  }
+  44% {
+    transform: scaleY(0.92) scaleX(0.98);
+  }
+  52% {
+    transform: scaleY(1.32) scaleX(1.05);
+  }
+  59% {
+    transform: scaleY(1.08) scaleX(0.97);
+  }
+  68% {
+    transform: scaleY(1.42) scaleX(1.04);
+    opacity: 0.92;
+  }
+  78% {
+    transform: scaleY(1.16) scaleX(0.99);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scaleY(1.5) scaleX(0.9);
+    opacity: 0;
+  }
+}
+
 @keyframes trail {
   0% {
     transform: scaleY(0);
@@ -302,6 +970,34 @@
   }
   100% {
     transform: scaleY(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes splitFlash {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  18% {
+    opacity: 1;
+    transform: scale(0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+
+@keyframes rake {
+  0%,
+  58% {
+    opacity: 0;
+  }
+  63% {
+    opacity: 1;
+  }
+  100% {
     opacity: 0;
   }
 }
@@ -330,7 +1026,56 @@
   }
 }
 
-/* Panels hold until the mark splits (1150/2600 = 44%), then part. */
+@keyframes hud {
+  0%,
+  4% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  57% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  68%,
+  100% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* Five readouts, one line each — the end value is the full strip height. */
+@keyframes tick {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(var(--hud-line) * -5));
+  }
+}
+
+@keyframes gauge {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@keyframes skipOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Panels hold until the mark splits (1560/2600 = 60%), then part. */
 @keyframes splitLeft {
   0%,
   60% {

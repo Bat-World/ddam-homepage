@@ -44,7 +44,7 @@ export default function NewsSection() {
           <a
             data-reveal
             href="#news"
-            className="font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase transition-opacity hover:opacity-70"
+            className="hover-mark hover-mark-flush font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase"
           >
             All news →
           </a>

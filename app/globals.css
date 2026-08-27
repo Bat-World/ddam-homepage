@@ -54,10 +54,12 @@
    * stack to the browser default (Times), rather than to the next name in the
    * list. The inline fallbacks keep a missing variable a non-event.
    */
-  --font-display: var(--font-roc-grotesk, "Roc Grotesk"),
-    var(--font-archivo, Archivo), "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-mono: var(--font-azeret-mono, "Azeret Mono"), ui-monospace,
-    SFMono-Regular, Menlo, monospace;
+  --font-display:
+    var(--font-roc-grotesk, "Roc Grotesk"), var(--font-archivo, Archivo),
+    "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono:
+    var(--font-azeret-mono, "Azeret Mono"), ui-monospace, SFMono-Regular, Menlo,
+    monospace;
   --font-sans: ui-sans-serif, system-ui, sans-serif;
 
   --text-size1: 11.008px;
@@ -76,6 +78,9 @@
   /* The house easing — slight overshoot at the end, used for every
      state change so the header, panels and reveals all move alike. */
   --ease-brand: cubic-bezier(0.62, 0.16, 0.13, 1.01);
+
+  /* When the launch intro's seam parts — the cue the hero reveals wait for. */
+  --intro-handoff: 1500ms;
 
   --text-display: clamp(2.5rem, 7.2vw, 6.5rem);
   --text-display-sm: clamp(1.75rem, 3.4vw, 3rem);
@@ -112,6 +117,30 @@ html {
 }
 
 /*
+ * Except where the section is a full-viewport composition that frames itself.
+ * The orbit pins a stage exactly one viewport tall and centres its card in it,
+ * so landing 6rem short leaves the tail of the previous section on screen and
+ * pushes the whole orbit that far below centre. It wants the track's top edge
+ * at the top of the screen, header floating over it as it does everywhere else.
+ */
+[data-anchor="flush"] {
+  scroll-margin-top: 0;
+}
+
+/*
+ * The hide-on-scroll header translates off the top of the screen but its links
+ * stay in the tab order — so a keyboard visitor can land on a control that is
+ * nowhere on screen. Any focus inside it brings the whole bar back.
+ */
+header[data-hidden="true"]:focus-within {
+  /* `translate`, not `transform`: the bar is moved off screen by Tailwind's
+     -translate-y-full, which sets the individual property. Overriding
+     `transform` here overrides nothing, and the bar stays hidden with the
+     focused control inside it. */
+  translate: none;
+}
+
+/*
  * Scroll reveals. <Reveal> flips data-revealed on its wrapper when it enters
  * the viewport; everything marked data-reveal inside it rises into place.
  * Children stagger by setting --reveal-delay.
@@ -127,7 +156,8 @@ html {
    * inherits this shorthand's property list and snaps with no easing.
    */
   [data-reveal] {
-    transition-property: opacity, transform, translate, scale, rotate, clip-path;
+    transition-property:
+      opacity, transform, translate, scale, rotate, clip-path;
     transition-duration: 800ms;
     transition-timing-function: var(--ease-brand);
     transition-delay: var(--reveal-delay, 0ms);
@@ -136,6 +166,22 @@ html {
   [data-revealed="false"] [data-reveal] {
     opacity: 0;
     transform: translateY(22px);
+  }
+
+  /*
+   * Intro handoff. The launch overlay covers the page for its first 1560ms, so
+   * a reveal that fires on load plays out behind a closed door and is already
+   * over by the time the door opens. Blocks marked data-intro-gate wait for the
+   * seam instead.
+   *
+   * Both escape hatches matter: `intro-seen` is set before first paint when the
+   * intro already played this session, and `intro-done` the moment it finishes
+   * or is skipped — so nothing ever waits on an overlay that isn't there. The
+   * rule is inside the motion query, which covers reduced motion (where the
+   * overlay never renders and there is no transition to delay anyway).
+   */
+  html:not(.intro-seen):not(.intro-done) [data-intro-gate] [data-reveal] {
+    transition-delay: calc(var(--reveal-delay, 0ms) + var(--intro-handoff));
   }
 
   /* Panels wipe up from their own bottom edge instead of sliding. */
@@ -168,31 +214,222 @@ html {
 }
 
 /*
- * Panel accordion. The row splits four ways at rest; hovering one panel opens
- * it to 40% and squeezes its neighbours to 20% each. Done with :hover on the
- * row rather than per-panel state so it needs no JS and no `:has()`.
+ * The panel that opens over the dark hero as it leaves.
  *
- * Outside the reduced-motion query — the widths still respond, they just jump
- * rather than glide, which keeps the interaction legible either way.
+ * `--rise` comes from RisePanel, 0 to 1 across the first part of the climb.
+ * Unset — no JS, reduced motion, or before the first frame — it resolves to 1
+ * and the inset is zero, so the panel is simply whole. The fallback is the
+ * finished state, never a hidden one.
+ *
+ * The radius goes on the child, not on this box and not in the clip.
+ *   · This box is transparent — the colour is painted by the section inside it,
+ *     and a parent's border-radius doesn't clip a child that isn't asked to be
+ *     clipped, so rounding here rounds nothing you can see.
+ *   · `inset(... round)` would round the sweeping right edge too, and that edge
+ *     is a cut, not a corner.
+ * Rounding the painted surface instead gives all three at once: a rounded
+ * top-left from the first frame, a hard vertical line while the right edge
+ * travels, and a top-right corner that rounds itself the moment the sweep lands.
  */
-@media (min-width: 64rem) {
-  .panel-row > * {
-    width: 25%;
-    flex: none;
+.rise-panel {
+  clip-path: inset(0 calc((1 - var(--rise, 1)) * 100%) 0 0);
+}
+
+.rise-panel > * {
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+}
+
+/*
+ * Nav hover — a mark lights up in front of the label, and the label flickers
+ * on with it, like a tube coming up to voltage.
+ *
+ * The mark's lane is reserved at rest (the padding), not opened on hover: the
+ * links sit in a flex row a few pixels apart, and widening one of them on
+ * hover would shove its neighbours sideways every time the pointer crossed the
+ * bar. Nothing moves here — the mark simply arrives in space that was already
+ * held for it.
+ *
+ * It's an ::before rather than markup so any link can opt in with one class,
+ * and it inherits `currentColor`, so it works on the dark bar and on a colour
+ * panel without being told which.
+ */
+.hover-mark {
+  position: relative;
+  padding-left: 1.15em;
+}
+
+.hover-mark::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 0.42em;
+  height: 0.42em;
+  margin-top: -0.21em;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0;
+  /* Not scale(0): a dot with no size has no direction to grow from, and the
+     overshoot in --ease-brand reads as a snap rather than a pop. */
+  transform: scale(0.25);
+  transition:
+    opacity 180ms ease-out,
+    transform 320ms var(--ease-brand);
+}
+
+/*
+ * Registration marks around the hovered link — the same corner vocabulary as
+ * BracketLink, drawn here from one element instead of four.
+ *
+ * It's a plain 1px border with a mask over it: one gradient keeps the strip
+ * near the left and right edges, the other keeps the strip near the top and
+ * bottom, and `intersect` keeps only what both agree on — which is exactly the
+ * four corner squares. Anything simpler either needs four positioned boxes (and
+ * this element has only ::before and ::after, and ::before is the dot) or draws
+ * a full outline, which reads as a button rather than as a mark.
+ *
+ * The frame settles inward from slightly oversized, so it reads as landing on
+ * the label rather than being switched on around it.
+ */
+.hover-mark::after {
+  --frame-arm: 0.7em;
+  content: "";
+  position: absolute;
+  inset: -0.6em -0.7em;
+  border: 1px solid currentColor;
+  opacity: 0;
+  transform: scale(1.08);
+  mask-image:
+    linear-gradient(
+      to right,
+      #000 var(--frame-arm),
+      transparent var(--frame-arm),
+      transparent calc(100% - var(--frame-arm)),
+      #000 calc(100% - var(--frame-arm))
+    ),
+    linear-gradient(
+      to bottom,
+      #000 var(--frame-arm),
+      transparent var(--frame-arm),
+      transparent calc(100% - var(--frame-arm)),
+      #000 calc(100% - var(--frame-arm))
+    );
+  mask-composite: intersect;
+  transition:
+    opacity 200ms ease-out,
+    transform 340ms var(--ease-brand);
+}
+
+.hover-mark:hover::after,
+.hover-mark:focus-visible::after {
+  opacity: 0.75;
+  transform: scale(1);
+}
+
+/*
+ * In a left-aligned column the reserved lane is wrong: it indents the links
+ * away from the heading they sit under, and the misalignment is permanent
+ * while the mark it makes room for is not. There the mark hangs in the margin
+ * instead, where the column already has room.
+ */
+.hover-mark-flush {
+  padding-left: 0;
+}
+
+.hover-mark-flush::before {
+  left: -1.05em;
+}
+
+/* No frame in a column either. Thirteen stacked links each boxing themselves
+   as the pointer runs down the list is a lot of furniture for a footer; the
+   mark alone is enough to say which one is live. */
+.hover-mark-flush::after {
+  content: none;
+}
+
+.hover-mark:hover::before,
+.hover-mark:focus-visible::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /*
+   * The flicker rides on the whole link, mark included, so the two read as one
+   * thing switching on rather than a dot and a word doing separate tricks. The
+   * stops are uneven on purpose — an even one is a blink, and a blink looks
+   * like a rendering fault.
+   */
+  .hover-mark:hover,
+  .hover-mark:focus-visible {
+    animation: mark-flicker 300ms var(--ease-brand) both;
+  }
+}
+
+@keyframes mark-flicker {
+  0% {
+    opacity: 0.4;
+  }
+  9% {
+    opacity: 1;
+  }
+  17% {
+    opacity: 0.45;
+  }
+  28% {
+    opacity: 1;
+  }
+  38% {
+    opacity: 0.7;
+  }
+  47% {
+    opacity: 1;
+  }
+  61% {
+    opacity: 0.88;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/*
+ * Orbit cards. The four practices stack in one grid cell inside the pinned
+ * stage and hand off as the section scrolls; ServiceOrbit sets data-active on
+ * the one that is showing.
+ *
+ * The opacity switch sits outside the motion query so the section still works
+ * under reduced motion — it cuts between practices instead of gliding. Only
+ * the fade and the travel are motion.
+ */
+.orbit-card[data-active="false"] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .orbit-card {
+    transition:
+      opacity 520ms var(--ease-brand),
+      transform 700ms var(--ease-brand);
   }
 
-  .panel-row:hover > * {
-    width: 20%;
+  /* The incoming card waits for the outgoing one to clear. Crossfading them on
+     the same clock stacks two paragraphs of mono on top of each other for a
+     few hundred milliseconds, which reads as a rendering fault. */
+  .orbit-card[data-active="true"] {
+    transition-delay: 160ms;
   }
 
-  .panel-row > *:hover {
-    width: 40%;
+  /* Cards leave upward and arrive from below, so the set reads as one column
+     moving with the scroll rather than four things blinking in place. */
+  .orbit-card[data-side="past"] {
+    transform: translateY(-2.5rem);
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .panel-row > * {
-      transition: width 500ms 100ms var(--ease-brand);
-    }
+  .orbit-card[data-side="ahead"] {
+    transform: translateY(2.5rem);
   }
 }
 

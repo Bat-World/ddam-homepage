@@ -3,18 +3,40 @@ import Reveal from "./reveal";
 import { stagger } from "./stagger";
 
 /**
- * About: the subsidiary advantage, the scale of the specialist bench, and the
- * corporate data table required for compliance — kept as a definition list so
- * it stays readable as a stacked column on narrow screens.
+ * About: the subsidiary advantage, the bench in numbers, the technical core,
+ * and the corporate data table required for compliance — kept as a definition
+ * list so it stays readable as a stacked column on narrow screens.
  *
- * Three separate Reveals rather than one, so each block starts its entrance
- * when it reaches the fold instead of all three firing off the section top.
+ * Separate Reveals rather than one, so each block starts its entrance when it
+ * reaches the fold instead of all of them firing off the section top.
+ *
+ * Every figure below is the operations team's own, and they are stated exactly
+ * as given — no rounding up, no "+" on a number that didn't carry one. If a
+ * figure moves, it moves here and nowhere else on the page.
  */
 
-const STATS = [
-  { value: "160+", label: "Specialists across AI, data and marketing" },
-  { value: "01", label: "Dentsu Digital subsidiary in Mongolia" },
-  { value: "04", label: "Practices under one delivery team" },
+const METRICS = [
+  { value: "150", label: "Staff members" },
+  { value: "32%", label: "Seniority level" },
+  { value: "68%", label: "Junior level" },
+  { value: "70%", label: "Japanese proficiency" },
+  { value: "90%", label: "English proficiency" },
+  { value: "+", label: "Other languages on the bench" },
+];
+
+const CORE = [
+  {
+    name: "AI & data",
+    body: "Machine learning on a robust data analytics foundation.",
+  },
+  {
+    name: "Cloud native",
+    body: "Scalable backend for global bridge operations.",
+  },
+  {
+    name: "Agile PoC",
+    body: "Rapid prototyping without platform lock.",
+  },
 ];
 
 const PROFILE = [
@@ -44,8 +66,7 @@ export default function AboutSection() {
               className="font-display text-display-sm leading-[1.05] font-medium tracking-[-0.02em] text-brand-white uppercase"
             >
               A local team with
-              <br />
-              a global backbone.
+              <br />a global backbone.
             </h2>
 
             <div className="border-t border-mixed/60 pt-6">
@@ -74,23 +95,56 @@ export default function AboutSection() {
 
         {/* ------------------------------------------------------- the bench */}
         <Reveal className="mt-24">
-          <dl className="grid gap-px overflow-hidden rounded-md border border-mixed/40 bg-mixed/40 sm:grid-cols-3">
-            {STATS.map((stat, i) => (
+          <p
+            data-reveal
+            className="font-mono text-size2 tracking-[0.16em] text-text-3 uppercase"
+          >
+            Growth, talent and language
+          </p>
+          <dl className="mt-8 grid gap-px overflow-hidden rounded-md border border-mixed/40 bg-mixed/40 sm:grid-cols-3">
+            {METRICS.map((metric, i) => (
               <div
-                key={stat.value}
+                key={metric.label}
                 data-reveal
-                style={stagger(i, 120)}
+                style={stagger(i, 100)}
                 className="bg-bg-primary px-8 py-12"
               >
                 <dt className="font-display text-display-sm leading-none text-brand-white">
-                  {stat.value}
+                  {metric.value}
                 </dt>
                 <dd className="mt-5 max-w-[24ch] font-mono text-size2 leading-[1.7] tracking-[0.05em] text-text-3 uppercase">
-                  {stat.label}
+                  {metric.label}
                 </dd>
               </div>
             ))}
           </dl>
+        </Reveal>
+
+        {/* ----------------------------------------------- the technical core */}
+        <Reveal className="mt-20">
+          <p
+            data-reveal
+            className="font-mono text-size2 tracking-[0.16em] text-text-3 uppercase"
+          >
+            Technical core & expertise
+          </p>
+          <div className="mt-8 grid border-t border-mixed/60 md:grid-cols-3">
+            {CORE.map((entry, i) => (
+              <div
+                key={entry.name}
+                data-reveal
+                style={stagger(i, 110)}
+                className="border-b border-mixed/40 py-7 md:border-b-0 md:border-l md:border-mixed/40 md:px-7 md:first:border-l-0 md:first:pl-0"
+              >
+                <h3 className="font-display text-size8 leading-[1.25] font-medium text-brand-white uppercase">
+                  {entry.name}
+                </h3>
+                <p className="mt-4 max-w-[32ch] leading-[1.65] text-light-gray">
+                  {entry.body}
+                </p>
+              </div>
+            ))}
+          </div>
         </Reveal>
 
         {/* -------------------------------------------------- corporate data */}
