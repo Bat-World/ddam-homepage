@@ -1,28 +1,32 @@
-import BracketLink from "./bracket-link";
 import Reveal from "./reveal";
 import { stagger } from "./stagger";
 
 /**
- * About: the subsidiary advantage, the bench in numbers, the technical core,
- * and the corporate data table required for compliance — kept as a definition
- * list so it stays readable as a stacked column on narrow screens.
+ * About: one claim, then the three things that evidence it — what the team can
+ * build, where it sits, and what stands behind it.
+ *
+ * This absorbed the separate "Global reach" band, which was making the same
+ * argument a second time. Both opened on a headline saying the company is local
+ * and globally backed, and between them the same four facts were stated twice:
+ * the parent company, the group, the head office and the practice list. Two
+ * bands, one point, and a reader who has to notice they are not new facts.
+ *
+ * What each surviving block is for, so nothing creeps back in:
+ *   · CORE    — capability, in technical terms. The only place on the page that
+ *               says *how* the work is built rather than what is sold.
+ *   · OFFICES — the geography behind "global backbone".
+ *   · GROUP   — the corporate line behind it.
+ *
+ * Deleted with the merge, and where each fact lives now:
+ *   · Company        -> the footer's copyright line, which is its proper home
+ *   · Headquarters   -> the Ulaanbaatar row below
+ *   · Parent company -> the Dentsu Digital row below
+ *   · Network        -> the dentsu group row below
+ *   · Practices      -> ServiceOrbit, which gives all four in full
  *
  * Separate Reveals rather than one, so each block starts its entrance when it
  * reaches the fold instead of all of them firing off the section top.
- *
- * Every figure below is the operations team's own, and they are stated exactly
- * as given — no rounding up, no "+" on a number that didn't carry one. If a
- * figure moves, it moves here and nowhere else on the page.
  */
-
-const METRICS = [
-  { value: "150", label: "Staff members" },
-  { value: "32%", label: "Seniority level" },
-  { value: "68%", label: "Junior level" },
-  { value: "70%", label: "Japanese proficiency" },
-  { value: "90%", label: "English proficiency" },
-  { value: "+", label: "Other languages on the bench" },
-];
 
 const CORE = [
   {
@@ -39,13 +43,62 @@ const CORE = [
   },
 ];
 
-const PROFILE = [
-  ["Company", "Dentsu Data Artist Mongol LLC"],
-  ["Headquarters", "Ulaanbaatar, Mongolia"],
-  ["Parent company", "Dentsu Digital Inc."],
-  ["Network", "dentsu group"],
-  ["Practices", "AI · Data · PoC & R&D · Digital marketing"],
+const OFFICES = [
+  ["Ulaanbaatar", "Head office · delivery team"],
+  ["Tokyo", "Dentsu Digital · parent company"],
+  ["Global", "dentsu network · 100+ markets"],
 ];
+
+/*
+ * Plain rows, not links. These were anchors pointing at `#network` — the id of
+ * the section they were already inside — so all three arrows offered to take
+ * the reader somewhere and then did nothing. A row that states a fact is
+ * honest; a link that goes nowhere is not. They can become outbound links the
+ * day someone confirms the destinations.
+ */
+const GROUP = [
+  ["Dentsu Digital Inc.", "Parent company"],
+  ["dentsu group", "Global network"],
+  ["Data Artist Inc.", "AI practice"],
+];
+
+/** The two fact lists are the same object, so they are built by the same code. */
+function FactList({
+  label,
+  rows,
+}: {
+  label: string;
+  rows: readonly (readonly [string, string])[] | string[][];
+}) {
+  return (
+    <div>
+      <p
+        data-reveal
+        className="font-mono text-size2 tracking-[0.16em] text-text-3 uppercase"
+      >
+        {label}
+      </p>
+      <dl className="mt-8 border-t border-mixed/60">
+        {rows.map(([term, note], i) => (
+          <div
+            key={term}
+            data-reveal
+            style={stagger(i + 1, 90)}
+            className="flex flex-wrap items-baseline justify-between gap-4 border-b border-mixed/40 py-6"
+          >
+            <dt className="text-size7 text-bg-secondary">{term}</dt>
+            {/* `basis-full` until sm: left to `flex-wrap`, a short term keeps
+                its caption inline while a long one pushes it to the next line,
+                so the same list reads two different ways down its own length. */}
+            <dd className="basis-full font-mono text-size2 tracking-[0.1em] text-text-3 uppercase sm:basis-auto">
+              {note}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
 
 export default function AboutSection() {
   return (
@@ -59,69 +112,23 @@ export default function AboutSection() {
             About us
           </p>
 
-          <div className="mt-8 grid gap-12 md:grid-cols-2 md:gap-20">
-            <h2
-              data-reveal
-              style={stagger(1)}
-              className="font-display text-display-sm leading-[1.05] font-medium tracking-[-0.02em] text-brand-white uppercase"
-            >
-              A local team with
-              <br />a global backbone.
-            </h2>
-
-            <div className="border-t border-mixed/60 pt-6">
-              <p
-                data-reveal
-                style={stagger(2)}
-                className="max-w-2xl text-lead leading-[1.65] text-light-gray"
-              >
-                As a subsidiary of Dentsu Digital, we bring methods proven
-                across the dentsu network into the Mongolian market — and adapt
-                them to the data, languages and regulations that actually apply
-                here. The result is enterprise-grade practice without the
-                distance.
-              </p>
-              <div data-reveal style={stagger(3)}>
-                <BracketLink
-                  href="#contact"
-                  className="mt-9 -ml-2 text-bg-secondary"
-                >
-                  Meet the team
-                </BracketLink>
-              </div>
-            </div>
-          </div>
-        </Reveal>
-
-        {/* ------------------------------------------------------- the bench */}
-        <Reveal className="mt-24">
-          <p
+          {/*
+            The headline stands alone — no supporting paragraph, and so no
+            two-column grid to hold one. Everything below it is the evidence,
+            which is what lets the claim stay a claim.
+          */}
+          <h2
             data-reveal
-            className="font-mono text-size2 tracking-[0.16em] text-text-3 uppercase"
+            style={stagger(1)}
+            className="mt-8 font-display text-display-sm leading-[1.05] font-medium tracking-[-0.02em] text-brand-white uppercase"
           >
-            Growth, talent and language
-          </p>
-          <dl className="mt-8 grid gap-px overflow-hidden rounded-md border border-mixed/40 bg-mixed/40 sm:grid-cols-3">
-            {METRICS.map((metric, i) => (
-              <div
-                key={metric.label}
-                data-reveal
-                style={stagger(i, 100)}
-                className="bg-bg-primary px-8 py-12"
-              >
-                <dt className="font-display text-display-sm leading-none text-brand-white">
-                  {metric.value}
-                </dt>
-                <dd className="mt-5 max-w-[24ch] font-mono text-size2 leading-[1.7] tracking-[0.05em] text-text-3 uppercase">
-                  {metric.label}
-                </dd>
-              </div>
-            ))}
-          </dl>
+            A local team with
+            <br />a global backbone.
+          </h2>
         </Reveal>
 
         {/* ----------------------------------------------- the technical core */}
-        <Reveal className="mt-20">
+        <Reveal className="mt-24">
           <p
             data-reveal
             className="font-mono text-size2 tracking-[0.16em] text-text-3 uppercase"
@@ -147,22 +154,20 @@ export default function AboutSection() {
           </div>
         </Reveal>
 
-        {/* -------------------------------------------------- corporate data */}
-        <Reveal className="mt-24 max-w-4xl border-t border-mixed/60">
-          {PROFILE.map(([term, value], i) => (
-            <dl
-              key={term}
-              data-reveal
-              style={stagger(i, 70)}
-              className="grid gap-2 border-b border-mixed/40 py-6 sm:grid-cols-[220px_1fr] sm:gap-8"
-            >
-              <dt className="font-mono text-size2 tracking-[0.12em] text-text-3 uppercase">
-                {term}
-              </dt>
-              <dd className="text-size6 text-bg-secondary">{value}</dd>
-            </dl>
-          ))}
-        </Reveal>
+        {/*
+          The two fact lists run side by side rather than stacked. They are the
+          same shape — a name against a mono caption — so pairing them reads as
+          one statement about where the company sits, and it keeps the tail of
+          the section from becoming three identical rulings in a column.
+        */}
+        <div className="mt-24 grid gap-16 lg:grid-cols-2 lg:gap-24">
+          <Reveal>
+            <FactList label="Global reach" rows={OFFICES} />
+          </Reveal>
+          <Reveal>
+            <FactList label="Group network" rows={GROUP} />
+          </Reveal>
+        </div>
       </div>
     </section>
   );

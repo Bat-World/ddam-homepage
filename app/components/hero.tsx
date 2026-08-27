@@ -1,12 +1,12 @@
 import BracketLink from "./bracket-link";
-import DotToono from "./dot-toono";
+import DotGlobe from "./dot-globe";
 import LogoMark from "./logo-mark";
 import Reveal from "./reveal";
 import { stagger } from "./stagger";
 
 /**
  * Full-viewport opening: the headline is split into a left-set and a right-set
- * line so the rotating point cloud shows through the gap between them, and the
+ * line so the globe shows through the gap between them, and the
  * standfirst sits on the fold line as a footer strip.
  *
  * The two headline lines and the strip below reveal in sequence on load — the
@@ -22,7 +22,7 @@ export default function Hero() {
       id="top"
       className="relative flex min-h-svh flex-col overflow-hidden px-6 pb-8"
     >
-      <DotToono className="pointer-events-none absolute top-1/2 left-1/2 aspect-square w-[min(84vw,780px)] -translate-x-1/2 -translate-y-[56%]" />
+      <DotGlobe className="pointer-events-none absolute top-1/2 left-1/2 aspect-square w-[min(84vw,780px)] -translate-x-1/2 -translate-y-[58%]" />
 
       <Reveal
         data-intro-gate

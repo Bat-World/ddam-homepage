@@ -226,10 +226,7 @@ export default function ServiceOrbit() {
   const ring = box && geometry(box.w, box.h);
 
   return (
-    <section
-      id="services"
-      className="bg-bg-secondary text-text-primary"
-    >
+    <section id="services" className="bg-bg-secondary text-text-primary">
       <div
         ref={trackRef}
         className="orbit-track relative"
@@ -271,7 +268,7 @@ export default function ServiceOrbit() {
                   strokeWidth="1.7"
                   strokeLinecap="round"
                   strokeDasharray="0 9"
-                  opacity="0.45"
+                  opacity="0.58"
                 />
                 <ellipse
                   rx={ring.innerRx}
@@ -281,7 +278,7 @@ export default function ServiceOrbit() {
                   strokeWidth="1.7"
                   strokeLinecap="round"
                   strokeDasharray="0 9"
-                  opacity="0.45"
+                  opacity="0.58"
                 />
                 {/* Marks ride the inner ring only — the outer is scenery. */}
                 {SEEDS.map((seed, i) => (
@@ -318,7 +315,7 @@ export default function ServiceOrbit() {
               >
                 <DotArt
                   variant={service.art}
-                  className="h-[150px] w-auto opacity-75 md:h-[190px]"
+                  className="h-[170px] w-auto md:h-[220px]"
                 />
 
                 <h3 className="mt-6 font-display text-size10 leading-[1.1] font-bold tracking-[-0.01em] text-balance uppercase md:text-[2.25rem]">

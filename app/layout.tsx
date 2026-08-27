@@ -101,10 +101,27 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 .orbit-stage{position:static;display:block;height:auto;padding:6rem 0}
 .orbit-rings{display:none}
 .orbit-stack{display:block}
-.orbit-card{opacity:1!important;margin:0 auto;padding:4rem 0}`}</style>
+.orbit-card{opacity:1!important;margin:0 auto;padding:4rem 0}
+.year-track{height:auto!important}
+.year-stage{position:static;height:auto;padding:2rem 0}
+.year-rail-frame,.month-strip{display:none}
+.era-stack{display:block}
+.era-copy{opacity:1!important;transform:none!important;padding:1.75rem 0;border-top:1px solid rgba(17,17,17,.15)}`}</style>
         </noscript>
       </head>
-      <body className="min-h-full flex flex-col">
+      {/*
+        `suppressHydrationWarning` here is about browser extensions, not about
+        anything this app renders. Several of them stamp an attribute onto
+        <body> before React hydrates — ColorZilla's `cz-shortcut-listen`,
+        Grammarly's `data-gr-*`, and others — and React reports the difference
+        as a hydration mismatch on every load for anyone who has one installed.
+
+        The flag is one level deep: it makes React accept the DOM's attributes
+        on this element only, and changes nothing about how children hydrate.
+        So a real mismatch inside the page still reports normally, which is why
+        it belongs on <body> and nowhere further in.
+      */}
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <SmoothScroll />
         <LaunchIntro />
         <SiteHeader />

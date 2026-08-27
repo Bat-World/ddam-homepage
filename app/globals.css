@@ -630,6 +630,13 @@ header[data-hidden="true"]:focus-within {
  *
  * The opacity switch sits outside the motion query so the section still works
  * under reduced motion — it cuts between zones instead of gliding.
+ *
+ * Shared with the history calendar, which carries `.era-copy` alongside this
+ * class. Two reels hand a column of copy off in exactly the same way, and the
+ * second one duplicating these rules under its own name would be two places to
+ * change the page's one crossfade. `.era-copy` exists only so the <noscript>
+ * rules in layout.tsx can unstack the timeline without also unstacking the
+ * office captions, which share a single grid cell and would collide.
  */
 .zone-copy[data-active="false"] {
   opacity: 0;
@@ -688,4 +695,320 @@ header[data-hidden="true"]:focus-within {
   margin-top: calc(var(--radius-xl) * -1);
   border-top-left-radius: var(--radius-xl);
   border-top-right-radius: var(--radius-xl);
+}
+
+/*
+ * The history year rail — see history-section.tsx for the mechanism.
+ *
+ * A vertical spine with every year on it, gliding so that the year being read
+ * sits at the middle of the stage. `--reel` is the scroll position in years,
+ * written on .year-rail every frame by that component; unset — before the first
+ * frame, or with JS off — it resolves to 0, which is the newest year at centre
+ * and the whole rail legible. The fallback is a usable state, never a blank one.
+ *
+ * The rail is positioned so year 0 sits centred at --reel: 0 and then travels
+ * one step per year, with the centring done in `top` rather than folded into the
+ * transform. That keeps the moving part to a single term, which is the one that
+ * has to stay cheap — and it is the same arrangement the work-environment reel
+ * uses, so the page has one idea of how a scrubbed column works, not two.
+ *
+ * `--rail-span` (the number of steps, set from the component) is only read by
+ * the spine fill. It lives on the frame rather than the rail because the rail's
+ * inline style is written by hand from JS, and React re-applying a style
+ * attribute there would be free to drop a property it didn't set.
+ */
+.year-rail-frame {
+  --rail-step: 3.25rem;
+  /* Where the spine runs, measured from the frame's inline start. The nodes sit
+     on it and the rows are indented past it, so one value moves all three. */
+  --spine-x: 0.3rem;
+  /* The fade at each edge, and the rail's lead-in — deliberately the same
+     value. The rail is clamped so it always covers the frame, which means the
+     first and last rows come to rest hard against the edges; padding them out
+     by exactly the fade is what stops those two years being dimmed by the very
+     gradient meant to soften the years beyond them. */
+  --rail-fade: 2rem;
+
+  position: relative;
+  height: 100%;
+  /*
+   * A floor, not a height — the stage is one screen and the rail is what gives
+   * when that screen is short. Three steps on a phone rather than four: the pin
+   * has a header, a month strip, a headcount and a paragraph to fit above and
+   * below this, and on a 667pt handset a four-step floor is the difference
+   * between a stage that fits and one that clips its own bottom padding.
+   */
+  min-height: calc(var(--rail-step) * 3);
+  overflow: hidden;
+  /* The far years dissolve at the frame's edges rather than being cut off — a
+     hard edge reads as a list in a box, this reads as a timeline running past. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    #000 var(--rail-fade),
+    #000 calc(100% - var(--rail-fade)),
+    transparent
+  );
+}
+
+@media (min-width: 1024px) {
+  .year-rail-frame {
+    --rail-step: 5.25rem;
+    --rail-fade: 3rem;
+
+    min-height: calc(var(--rail-step) * 4);
+  }
+}
+
+/*
+ * Short viewports — a small handset, or a laptop in landscape with the browser
+ * chrome taking its cut. Last of the three on purpose: it has to beat the
+ * min-width rule above, because a 1024-wide window can still be 650 tall and
+ * the four-step floor is what pushes the stage past its own height there.
+ *
+ * Two years of rail is thin, and it is the right thing to give up: the header,
+ * the month strip, the headcount and the entry all have to be on screen at once
+ * for the stage to make sense, where the rail only has to show that a spine
+ * continues past the year being read.
+ */
+@media (max-height: 700px) {
+  .year-rail-frame {
+    min-height: calc(var(--rail-step) * 2);
+  }
+}
+
+/*
+ * `--rail-shift` is a pixel offset written by the component every frame, not a
+ * year count. The clamping that keeps blank space off both ends of the run needs
+ * the frame's height, which CSS can't see from here — so the arithmetic is done
+ * in JS and this side only has to move. `--reel` still comes through for the
+ * spine fill, which wants the fraction rather than the distance.
+ */
+.year-rail {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  padding-block: var(--rail-fade);
+  transform: translateY(calc(var(--rail-shift, 0px) * -1));
+}
+
+/*
+ * The spine, in two layers: a faint track for the whole run and a solid fill for
+ * the part already travelled. Both stop half a step short at each end, because
+ * the nodes are centred in their rows and a line that overshot the first and
+ * last node would read as the timeline continuing past years that don't exist.
+ */
+.year-rail::before,
+.year-rail::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: var(--spine-x);
+  top: calc(var(--rail-fade) + var(--rail-step) / 2);
+  bottom: calc(var(--rail-fade) + var(--rail-step) / 2);
+  width: 1px;
+}
+
+.year-rail::before {
+  background: color-mix(in srgb, var(--color-text-primary) 18%, transparent);
+}
+
+/* Scaled rather than sized: scaleY on a one-pixel line composites, where
+   animating `height` would lay the rail out again on every frame. */
+.year-rail::after {
+  background: var(--color-text-primary);
+  transform: scaleY(calc(var(--reel, 0) / var(--rail-span, 1)));
+  transform-origin: top;
+}
+
+/*
+ * A row is a fixed height whatever the year inside it is doing.
+ *
+ * That fixed height is the whole reason the rail can glide: the active year is
+ * several times the size of its neighbours, and if that came from `font-size`
+ * the rows would resize as the highlight moved, the spacing would breathe, and
+ * every node on the spine would shift. Scale is a transform — it changes what
+ * the year looks like without changing what the row measures.
+ */
+.rail-row {
+  position: relative;
+  display: flex;
+  height: var(--rail-step);
+  align-items: center;
+  padding-inline-start: calc(var(--spine-x) + 1.75rem);
+}
+
+.rail-node {
+  position: absolute;
+  inset-inline-start: var(--spine-x);
+  top: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  translate: -50% -50%;
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-4);
+  box-shadow: inset 0 0 0 1px
+    color-mix(in srgb, var(--color-text-primary) 30%, transparent);
+}
+
+.rail-row[data-active="true"] .rail-node {
+  scale: 1.35;
+  background: var(--color-text-primary);
+  box-shadow: inset 0 0 0 1px var(--color-text-primary);
+}
+
+/*
+ * Set at the size it is when active and scaled *down* when it isn't. Downscaling
+ * a large glyph stays crisp where scaling a small one up goes soft, and the
+ * year at centre is the one being looked at.
+ */
+.rail-year {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.8vw, 3.25rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  /* The numeral changes nine times on the way past; proportional digits would
+     shift its width as it did, so the column would breathe. */
+  font-variant-numeric: tabular-nums;
+  transform-origin: left center;
+  scale: 0.46;
+  opacity: 0.24;
+}
+
+.rail-row[data-active="true"] .rail-year {
+  scale: 1;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rail-year,
+  .rail-node {
+    transition:
+      scale 620ms var(--ease-brand),
+      opacity 620ms var(--ease-brand),
+      background-color 620ms var(--ease-brand),
+      box-shadow 620ms var(--ease-brand);
+  }
+}
+
+/*
+ * The month strip — one strip, not one per year.
+ *
+ * It belongs to the copy beside it rather than to the year on the rail, and
+ * that distinction does real work: through the quiet years the words hold on
+ * the last milestone, so the strip holds on that milestone's month too. A strip
+ * keyed to the rail year would go flat under text that was still describing
+ * something that happened in April.
+ *
+ * Being a single strip is also what makes the change an animation. The lit tick
+ * doesn't cut from one month to another — the old one sinks as the new one
+ * rises, because they are the same twelve elements throughout.
+ */
+.month-strip {
+  --tick-area: 1.75rem;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 0.35rem;
+}
+
+/*
+ * The axis the ticks stand on. Without it the ticks are twelve unrelated marks;
+ * with it they are one scale, and a raised month is measurably taller than its
+ * neighbours instead of merely darker. Drawn at `top: var(--tick-area)`, which
+ * is exactly where the fixed tick row ends and every tick's foot sits.
+ */
+.month-strip::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: var(--tick-area);
+  height: 1px;
+  background: color-mix(in srgb, var(--color-text-primary) 20%, transparent);
+}
+
+@media (min-width: 1024px) {
+  .month-strip {
+    --tick-area: 2.25rem;
+  }
+}
+
+.month-cell {
+  display: grid;
+  grid-template-rows: var(--tick-area) auto;
+  align-items: end;
+  justify-items: center;
+  gap: 0.5rem;
+}
+
+.month-tick {
+  width: 0.375rem;
+  height: 1rem;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-text-primary) 32%, transparent);
+}
+
+.month-tick[data-lit="true"] {
+  height: var(--tick-area);
+  background: var(--color-text-primary);
+}
+
+/*
+ * A milestone whose month isn't on record — 2019 — lights the whole row at
+ * half height instead. Full height on twelve months would claim it happened in
+ * every one of them; flat would claim it happened in none. Half says "this
+ * year", which is exactly what the record says.
+ */
+.month-tick[data-lit="year"] {
+  height: calc(var(--tick-area) * 0.42);
+  background: var(--color-text-primary);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .month-tick {
+    transition:
+      height 620ms var(--ease-brand),
+      background-color 620ms var(--ease-brand);
+  }
+}
+
+.month-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-size1);
+  line-height: 1;
+  letter-spacing: 0.04em;
+  opacity: 0.5;
+}
+
+/*
+ * The headcount figure. Its digits are rewritten several times a second by the
+ * component, which makes two things non-negotiable.
+ *
+ * `tabular-nums` first: proportional digits change width as they change value,
+ * so a counter set in them jitters horizontally the whole way up the run — and
+ * at this size the movement is impossible not to watch.
+ *
+ * No transition second: the value itself is the animation. Easing the element
+ * on top of that would fight the count rather than smooth it.
+ */
+.staff-count {
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Set back, because it qualifies the number rather than being part of it — the
+   figure is an estimate and the tilde is the only thing saying so. */
+.staff-approx {
+  /* Smaller than the digits and lifted onto their upper half: at full size the
+     tilde reads as the first character of the figure rather than as a hedge in
+     front of it. */
+  font-size: 0.58em;
+  vertical-align: 0.22em;
+  margin-inline-end: 0.12em;
+  opacity: 0.4;
 }

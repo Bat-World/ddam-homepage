@@ -21,24 +21,73 @@ type Band = { dots: Dot[]; dx: number; dy: number; delay: number };
 const W = 300;
 const H = 400;
 
-/** Square lattice cut through by diagonal voids; hover shears it row by row. */
+/*
+ * Every variant lays its dots out on a rectangle, and left alone each one ends
+ * at the edge of that rectangle with a knife-straight cut — the lattice read as
+ * a swatch, the burst as a dandelion with its top sliced off, the ribbon as a
+ * block of hatching. A mark needs its own silhouette, not a crop.
+ *
+ * So the renderer fades every dot out by its distance from a shared focus. It
+ * lives here rather than in the four generators because it is one decision, not
+ * four, and because it is what makes the set read as a family: four different
+ * structures, each dissolving into the page the same way — the same thing the
+ * hero globe does at its lower edge.
+ *
+ * The focus sits above the geometric centre because all four variants weight
+ * their mass low.
+ */
+const FOCUS_X = W / 2;
+const FOCUS_Y = 214;
+/** Distance from the focus, in viewBox units, where the fade starts and ends. */
+const FADE_FROM = 92;
+const FADE_TO = 172;
+
+function falloff(x: number, y: number) {
+  const d = Math.hypot(x - FOCUS_X, y - FOCUS_Y);
+  if (d <= FADE_FROM) return 1;
+  if (d >= FADE_TO) return 0;
+  const t = 1 - (d - FADE_FROM) / (FADE_TO - FADE_FROM);
+  return t * t * (3 - 2 * t); // smoothstep
+}
+
+/**
+ * Square lattice cut through by diagonal channels; hover shears it row by row.
+ *
+ * The channels are two families of one-dot gaps running at opposite diagonals,
+ * both on the same period, which leaves regular diamond cells.
+ *
+ * It is cut to a disc rather than left as the square its grid is generated on.
+ * A square of dots reads as a swatch — a sample of a pattern that continues
+ * past the crop — where the other three marks all have a silhouette of their
+ * own. The cut is set where the renderer's falloff has already taken the dots
+ * most of the way down, so the rim dissolves instead of stair-stepping.
+ *
+ * They used to be cut by two interfering modulo frequencies at different
+ * periods, one of them evaluated on a half-integer. That produced cells of
+ * every different size, and because JavaScript's `%` returns a negative result
+ * for a negative left operand, the second family silently switched off across
+ * half the grid. The result read as damage rather than as pattern. A lattice
+ * has to be regular or it is not a lattice.
+ */
 function lattice(): Band[] {
-  const n = 24;
+  const n = 29;
+  const step = 9.6;
+  /** Channel spacing, in cells. */
+  const P = 7;
+  /** Radius of the disc the grid is cut to, in viewBox units. */
+  const CUT = 138;
+  const origin = ((n - 1) * step) / 2;
   const bands: Band[] = [];
   for (let row = 0; row < n; row++) {
     const dots: Dot[] = [];
     for (let col = 0; col < n; col++) {
-      // Diagonal bands of missing dots, at two frequencies so the voids
-      // interfere and the gaps read as drawn rather than periodic.
-      const band = (col + row * 0.75) % 8;
-      const cross = (col * 0.5 - row) % 11;
-      if (band < 1.3 || (cross > 0 && cross < 1.1)) continue;
-      dots.push({
-        x: 34 + col * (232 / (n - 1)),
-        y: 90 + row * (232 / (n - 1)),
-        r: 1.5,
-        o: 0.9,
-      });
+      const down = (col + row) % P;
+      const up = (((col - row) % P) + P) % P;
+      if (down === 0 || up === 0) continue;
+      const x = FOCUS_X - origin + col * step;
+      const y = FOCUS_Y - origin + row * step;
+      if (Math.hypot(x - FOCUS_X, y - FOCUS_Y) > CUT) continue;
+      dots.push({ x, y, r: 1.7, o: 0.95 });
     }
     bands.push({
       dots,
@@ -64,8 +113,8 @@ function wave(): Band[] {
       dots.push({
         x,
         y: 96 + row * 9 + Math.sin(phase) * 30 * damp,
-        r: 1.3,
-        o: 0.55 + 0.45 * damp,
+        r: 1.7,
+        o: 0.62 + 0.38 * damp,
       });
     }
     bands.push({ dots, dx: 0, dy: -damp * 22, delay: row * 22 });
@@ -73,58 +122,99 @@ function wave(): Band[] {
   return bands;
 }
 
-/** Rays converging on a point; hover blows them outward along their own axis. */
+/**
+ * Rays converging on a point; hover blows them outward along their own axis.
+ *
+ * Circular, and concentric with the renderer's falloff. It used to be scaled
+ * 1.35 wide by 0.62 tall, which the circular falloff then cut at a constant
+ * radius — so the horizontal rays were trimmed short while the vertical ones
+ * ran on, and the star came out squashed and lopsided around a flat oval hole.
+ * Anything radial in here has to share the falloff's centre and its aspect.
+ *
+ * Spacing goes as the square of the step: dense at the core, opening out to
+ * nothing at the rim, so the rays dissolve instead of ending.
+ */
 function burst(): Band[] {
-  const rays = 28;
-  const steps = 22;
+  const rays = 32;
+  const steps = 20;
   const bands: Band[] = [];
   for (let ray = 0; ray < rays; ray++) {
     const a = (ray / rays) * Math.PI * 2;
+    const cos = Math.cos(a);
+    const sin = Math.sin(a);
     const dots: Dot[] = [];
     for (let step = 1; step <= steps; step++) {
       // Rays start clear of the origin — converging all of them on the exact
       // centre fills it in as a solid blob and loses the focal point.
-      const d = 34 + step * step * 0.42;
-      const x = W / 2 + Math.cos(a) * d * 1.35;
-      const y = H / 2 + 20 + Math.sin(a) * d * 0.62;
-      if (x < 12 || x > W - 12 || y < 70 || y > H - 12) continue;
-      dots.push({ x, y, r: 1.3, o: 0.35 + 0.6 * (1 - step / steps) });
+      const d = 24 + step * step * 0.36;
+      dots.push({
+        x: FOCUS_X + cos * d,
+        y: FOCUS_Y + sin * d,
+        r: 1.7,
+        o: 0.5 + 0.5 * (1 - step / steps),
+      });
     }
     bands.push({
       dots,
-      dx: Math.cos(a) * 16,
-      dy: Math.sin(a) * 9,
+      dx: cos * 16,
+      dy: sin * 16,
       delay: Math.abs(ray - rays / 2) * 12,
     });
   }
   return bands;
 }
 
-/** A folded ribbon; hover pulls the near columns forward. */
+/**
+ * A ribbon seen edge-on, twisting once across its width; hover pulls the near
+ * columns forward.
+ *
+ * Columns are laid out evenly across the box and the fold is expressed in what
+ * each column *does* — where its centre sits and how tall it stands — rather
+ * than in where it is placed.
+ *
+ * That distinction is the whole fix. The old version derived x from `sin(t)`
+ * with t running past a full turn, so the sweep doubled back: several columns
+ * landed on the same x carrying different heights and centres, drew over each
+ * other, and the band came out as ragged vertical strokes of random length
+ * with no fold in it at all. Even spacing means one column per position, and
+ * the phase covers exactly one turn.
+ *
+ * `facing` is the foreshortening: 1 where the ribbon is broadside, near 0 where
+ * it turns edge-on. It drives height and opacity together, which is what makes
+ * a flat column of dots read as a surface in perspective.
+ *
+ * Dot *count* follows the column's height rather than being fixed, so spacing
+ * stays constant down the whole band. With a fixed count the short columns at
+ * the two pinches packed the same dots into a third of the height and rendered
+ * as solid vertical bars, which read as a fault in the middle of the mark.
+ */
 function ribbon(): Band[] {
-  const cols = 34;
-  const rows = 40;
+  const cols = 30;
+  /** Distance between dots down a column, in viewBox units. */
+  const PITCH = 5.6;
   const bands: Band[] = [];
   for (let col = 0; col < cols; col++) {
-    const t = col * 0.23;
-    const sweep = Math.sin(t);
-    // Columns bunch up where the ribbon turns away, which is what sells the
-    // fold — the derivative of the sweep drives both spacing and opacity.
-    const facing = Math.abs(Math.cos(t));
-    // The column's centre and height both travel, which is what gives the
-    // stack a silhouette instead of reading as a flat set of vertical rules.
-    const centre = 240 + Math.sin(t * 0.85) * 44;
-    const halfHeight = 88 + facing * 44;
+    const u = col / (cols - 1);
+    const phase = u * Math.PI * 2;
+    const facing = 0.24 + 0.76 * Math.abs(Math.cos(phase));
+    // Shallow on purpose. At the amplitude this started on, the two waists
+    // landed on the crest and the trough — one high, one low — and the
+    // silhouette read as a letter M rather than as a band being turned. Keeping
+    // the centreline nearly level lets the width carry the twist on its own,
+    // and leaves just enough tilt that the mark isn't a symmetrical bowtie.
+    const centre = FOCUS_Y + Math.sin(phase) * 14;
+    const halfHeight = 96 * facing;
+    const rows = Math.max(4, Math.round((halfHeight * 2) / PITCH));
     const dots: Dot[] = [];
     for (let row = 0; row < rows; row++) {
       dots.push({
-        x: W / 2 + sweep * 108,
+        x: 40 + u * 220,
         y: centre - halfHeight + (row / (rows - 1)) * halfHeight * 2,
-        r: 1.2,
-        o: 0.25 + 0.65 * facing,
+        r: 1.6,
+        o: 0.4 + 0.55 * facing,
       });
     }
-    bands.push({ dots, dx: sweep * 10, dy: -facing * 16, delay: col * 14 });
+    bands.push({ dots, dx: 0, dy: -facing * 18, delay: col * 14 });
   }
   return bands;
 }
@@ -161,15 +251,20 @@ export default function DotArt({
             } as React.CSSProperties
           }
         >
-          {band.dots.map((d, j) => (
-            <circle
-              key={j}
-              cx={d.x.toFixed(2)}
-              cy={d.y.toFixed(2)}
-              r={d.r}
-              opacity={d.o.toFixed(2)}
-            />
-          ))}
+          {band.dots.map((d, j) => {
+            const o = d.o * falloff(d.x, d.y);
+            // Below this it is a smudge that costs a DOM node; drop it.
+            if (o < 0.04) return null;
+            return (
+              <circle
+                key={j}
+                cx={d.x.toFixed(2)}
+                cy={d.y.toFixed(2)}
+                r={d.r}
+                opacity={o.toFixed(2)}
+              />
+            );
+          })}
         </g>
       ))}
     </svg>
