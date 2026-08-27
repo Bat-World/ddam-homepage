@@ -16,11 +16,8 @@ import Lenis from "lenis";
  *     switched off for as long as Lenis is running (and restored on teardown,
  *     which matters in dev where this remounts on every edit).
  *   · in-page anchors are handled here instead of natively, so they ease with
- *     the same curve and clear the fixed header.
+ *     the same curve and honour the target's own `scroll-margin-top`.
  */
-
-/** Matches the [id] scroll-margin in globals.css — clears the fixed header. */
-const HEADER_OFFSET = -96;
 
 export default function SmoothScroll() {
   useEffect(() => {
@@ -47,7 +44,8 @@ export default function SmoothScroll() {
 
     const onClick = (e: MouseEvent) => {
       // Let modified clicks (new tab, download, …) behave normally.
-      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey) return;
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey)
+        return;
 
       const anchor = (e.target as Element | null)?.closest?.("a");
       const href = anchor?.getAttribute("href");
@@ -57,7 +55,17 @@ export default function SmoothScroll() {
       if (!target) return;
 
       e.preventDefault();
-      lenis.scrollTo(target as HTMLElement, { offset: HEADER_OFFSET });
+      /* Read the offset off the target rather than keeping a copy of it here.
+         `scroll-margin-top` is what a native jump would honour, so taking it
+         from the computed style keeps both paths identical and lets a section
+         opt out of the header offset in CSS alone — which the orbit does, since
+         it pins a full-viewport stage that has to land flush. */
+      const margin = parseFloat(
+        getComputedStyle(target).scrollMarginTop || "0",
+      );
+      lenis.scrollTo(target as HTMLElement, {
+        offset: -(Number.isFinite(margin) ? margin : 0),
+      });
     };
 
     document.addEventListener("click", onClick);

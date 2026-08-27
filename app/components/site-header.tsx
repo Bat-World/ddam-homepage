@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import LogoMark from "./logo-mark";
 
 /**
@@ -10,9 +10,17 @@ import LogoMark from "./logo-mark";
  *   · scrolling down past one full viewport → slides out of the way
  *   · scrolling back up → slides in again, anywhere on the page
  *
- * The wordmark and the icon are stacked inside one overflow-hidden box and the
- * pair slides vertically between them, rather than one fading out as the other
- * fades in — a crossfade reads as a swap, a slide reads as one object moving.
+ * The name shows at rest and gives way to the mark as the bar closes; the
+ * sequencing that keeps that clean is described at the anchor itself.
+ *
+ * The capsule closes on `flex-grow`, not on `width`. `width: fit-content` is
+ * not an interpolable value, so a `w-full` -> `w-fit` transition snaps to the
+ * end on the first frame while the padding, background and blur next to it ease
+ * over half a second — which is what made the collapse look broken. Instead the
+ * bar keeps a full-width rail and three flex-grow factors cross over inside it:
+ * the two edge spacers grow 0 -> 1 while the capsule itself goes 1 -> 0, so the
+ * capsule gives up its free space continuously and ends up hugging its content,
+ * centred. flex-grow is a number, and numbers interpolate.
  *
  * State lives as `data-scrolled` / `data-hidden` on the <header> so descendants
  * pick it up through `group-data-*` and all the geometry stays in the markup.
@@ -34,6 +42,11 @@ export default function SiteHeader() {
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const lastY = useRef(0);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -70,58 +83,163 @@ export default function SiteHeader() {
     };
   }, [menuOpen]);
 
+  // The overlay is `md:hidden`, so crossing into desktop hides it visually while
+  // React still thinks it's open — leaving the scroll lock on and the page
+  // frozen with nothing left on screen to close. Close it on the breakpoint.
+  // Only the `change` event is needed: the trigger is `md:hidden` too, so the
+  // menu can never have been opened at desktop width in the first place.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const desktop = window.matchMedia("(min-width: 48rem)");
+    desktop.addEventListener("change", closeMenu);
+    return () => desktop.removeEventListener("change", closeMenu);
+  }, [menuOpen, closeMenu]);
+
+  /*
+   * Modal keyboard contract: Escape closes, Tab cycles within the panel, focus
+   * enters on Close (first in DOM order) and returns to the Menu trigger on
+   * close — so a keyboard visitor can't tab out of an overlay that still
+   * covers the page, or lose their place when it dismisses.
+   */
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const panel = panelRef.current;
+    // Captured now: by cleanup time the ref may already point elsewhere.
+    const trigger = triggerRef.current;
+    panel?.querySelector<HTMLElement>("a, button")?.focus();
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        closeMenu();
+        return;
+      }
+      if (e.key !== "Tab" || !panel) return;
+
+      const focusable = panel.querySelectorAll<HTMLElement>("a[href], button");
+      if (focusable.length === 0) return;
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (e.shiftKey && active === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      trigger?.focus();
+    };
+  }, [menuOpen, closeMenu]);
+
   return (
     <header
       data-scrolled={scrolled}
       data-hidden={hidden && !menuOpen}
-      className="group fixed inset-x-0 top-0 z-50 px-6 pt-6 transition-[transform,padding] duration-500 ease-brand data-[hidden=true]:-translate-y-full data-[scrolled=true]:pt-3"
+      className="group fixed inset-x-0 top-0 z-50 px-6 pt-6 transition-[translate,padding] duration-500 ease-brand data-[hidden=true]:-translate-y-full data-[scrolled=true]:pt-3"
     >
-      <div className="mx-auto flex w-full items-center justify-between gap-10 rounded-pill transition-all duration-500 ease-brand group-data-[scrolled=true]:w-fit group-data-[scrolled=true]:gap-8 group-data-[scrolled=true]:bg-dark-gray/85 group-data-[scrolled=true]:px-6 group-data-[scrolled=true]:py-3 group-data-[scrolled=true]:backdrop-blur-md">
-        <a
-          href="#top"
-          aria-label="Dentsu Data Artist Mongol — home"
-          className="relative block h-10 w-[190px] overflow-hidden transition-[width] duration-500 ease-brand group-data-[scrolled=true]:w-5"
-        >
-          <span className="absolute inset-0 flex items-center font-display text-size3 leading-[1.2] tracking-[0.16em] text-brand-white uppercase transition-transform duration-500 ease-brand group-data-[scrolled=true]:-translate-y-full">
-            <span>
-              Dentsu Data
-              <br />
-              <span className="font-bold">Artist Mongol</span>
+      {/* The rail is always the full width; only the share of it the capsule
+          takes changes. */}
+      <div className="flex w-full items-center">
+        <span
+          aria-hidden="true"
+          className="w-0 grow-0 transition-[flex-grow] duration-500 ease-brand group-data-[scrolled=true]:grow"
+        />
+
+        <div className="flex grow items-center rounded-pill transition-all duration-500 ease-brand group-data-[scrolled=true]:grow-0 group-data-[scrolled=true]:bg-dark-gray/85 group-data-[scrolled=true]:px-6 group-data-[scrolled=true]:py-3 group-data-[scrolled=true]:backdrop-blur-md">
+          {/*
+            Wordmark at rest, mark once the bar closes — swapped as a sequence,
+            not a slide. The two used to travel through a shared 40px window in
+            opposite directions, which meant the middle of every transition
+            showed the bottom half of the name stacked on the top half of the
+            mark, in a box that was simultaneously narrowing to 20px and so
+            cropping the name to two letters. Read as a broken glyph, not a swap.
+
+            Here nothing is ever half-visible: the outgoing layer fades out, the
+            box then resizes, and only then does the incoming layer fade in. The
+            delays are mirrored between the two states, so it sequences the same
+            way opening as closing. Both layers are absolutely positioned in the
+            same box, so neither reserves space for the other.
+          */}
+          <a
+            href="#top"
+            aria-label="Dentsu Data Artist Mongol — home"
+            className="relative block h-10 w-[190px] shrink-0 overflow-hidden transition-[width,height] delay-150 duration-300 ease-brand group-data-[scrolled=true]:h-7 group-data-[scrolled=true]:w-6"
+          >
+            <span className="absolute inset-0 flex items-center font-display text-size3 leading-[1.2] tracking-[0.16em] text-brand-white uppercase transition-opacity delay-[400ms] duration-150 group-data-[scrolled=true]:opacity-0 group-data-[scrolled=true]:delay-0 group-data-[scrolled=true]:duration-150">
+              <span>
+                Dentsu Data
+                <br />
+                <span className="font-bold">Artist Mongol</span>
+              </span>
             </span>
-          </span>
-          <span className="absolute inset-0 flex translate-y-full items-center transition-transform duration-500 ease-brand group-data-[scrolled=true]:translate-y-0">
-            <LogoMark className="w-4 text-brand-white" />
-          </span>
-        </a>
 
-        <nav className="hidden items-center gap-10 md:flex">
-          {NAV.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              className="font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase transition-colors duration-300 hover:text-brand-white"
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
+            {/* Sized once, at the height it's actually seen — it only ever
+                appears in the closed state. */}
+            <span className="absolute inset-0 flex items-center opacity-0 transition-opacity duration-150 group-data-[scrolled=true]:opacity-100 group-data-[scrolled=true]:delay-300 group-data-[scrolled=true]:duration-200">
+              <LogoMark className="h-7 w-auto text-brand-white" />
+            </span>
+          </a>
 
-        <button
-          type="button"
-          onClick={() => setMenuOpen(true)}
-          className="font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase md:hidden"
-        >
-          Menu
-        </button>
+          {/* What used to be `justify-between`. Its 2rem floor is the gap the
+            closed capsule keeps between the mark and the links. */}
+          <span
+            aria-hidden="true"
+            className="w-8 grow transition-[flex-grow] duration-500 ease-brand group-data-[scrolled=true]:grow-0"
+          />
+
+          <nav className="hidden items-center gap-10 md:flex">
+            {NAV.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="hover-mark font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase transition-colors duration-300 hover:text-brand-white"
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+
+          <button
+            ref={triggerRef}
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-expanded={menuOpen}
+            aria-controls={menuId}
+            aria-haspopup="dialog"
+            className="hover-mark font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase md:hidden"
+          >
+            Menu
+          </button>
+        </div>
+
+        <span
+          aria-hidden="true"
+          className="w-0 grow-0 transition-[flex-grow] duration-500 ease-brand group-data-[scrolled=true]:grow"
+        />
       </div>
 
       {menuOpen && (
-        <div className="fixed inset-0 z-50 flex flex-col bg-bg-primary px-6 py-6 md:hidden">
+        <div
+          ref={panelRef}
+          id={menuId}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Site menu"
+          className="fixed inset-0 z-50 flex flex-col bg-bg-primary px-6 py-6 md:hidden"
+        >
           <div className="flex justify-end">
             <button
               type="button"
-              onClick={() => setMenuOpen(false)}
-              className="font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase"
+              onClick={closeMenu}
+              className="hover-mark font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase"
             >
               Close
             </button>
@@ -131,8 +249,8 @@ export default function SiteHeader() {
               <a
                 key={item.href}
                 href={item.href}
-                onClick={() => setMenuOpen(false)}
-                className="font-display text-display-sm tracking-tight text-brand-white uppercase"
+                onClick={closeMenu}
+                className="hover-mark font-display text-display-sm tracking-tight text-brand-white uppercase"
               >
                 {item.label}
               </a>

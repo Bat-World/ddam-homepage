@@ -16,8 +16,11 @@ const COLUMNS = [
     heading: "Company",
     links: [
       ["About us", "#about"],
+      ["History", "#history"],
       ["News", "#news"],
       ["Careers", "#careers"],
+      ["Culture", "#culture"],
+      ["Work environment", "#workspace"],
       ["Contact", "#contact"],
     ],
   },
@@ -62,7 +65,7 @@ export default function SiteFooter() {
                   <li key={label}>
                     <a
                       href={href}
-                      className="text-size3 text-bg-secondary transition-opacity hover:opacity-70"
+                      className="hover-mark hover-mark-flush text-size3 text-bg-secondary transition-opacity hover:opacity-70"
                     >
                       {label}
                     </a>

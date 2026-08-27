@@ -86,10 +86,22 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: introSeenScript }} />
-        {/* Scroll reveals start hidden and are unhidden by an observer — with
-            no JS at all there is nothing to unhide them, so opt out entirely. */}
+        {/* Two things here depend on JS and have to fail open.
+            · Scroll reveals start hidden and are unhidden by an observer, so
+              with no JS there is nothing to unhide them.
+            · The launch intro holds on its first frame until a script starts
+              it, so with no JS it would sit closed over the page for good.
+            · The service orbit pins a stage and shows one practice at a time;
+              with no JS it would pin on the first one for four viewports. It
+              unpins into a plain stacked list instead. */}
         <noscript>
-          <style>{`[data-reveal]{opacity:1!important;transform:none!important}`}</style>
+          <style>{`[data-launch-intro]{display:none}
+[data-reveal]{opacity:1!important;transform:none!important}
+.orbit-track{height:auto!important}
+.orbit-stage{position:static;display:block;height:auto;padding:6rem 0}
+.orbit-rings{display:none}
+.orbit-stack{display:block}
+.orbit-card{opacity:1!important;margin:0 auto;padding:4rem 0}`}</style>
         </noscript>
       </head>
       <body className="min-h-full flex flex-col">

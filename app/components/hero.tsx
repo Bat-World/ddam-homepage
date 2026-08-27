@@ -11,6 +11,10 @@ import { stagger } from "./stagger";
  *
  * The two headline lines and the strip below reveal in sequence on load — the
  * observer fires immediately here, since this is what the page opens on.
+ *
+ * `data-intro-gate` holds those reveals until the launch overlay's seam parts;
+ * without it they'd finish behind a closed door and this screen would be
+ * sitting there fully assembled the moment it became visible.
  */
 export default function Hero() {
   return (
@@ -20,7 +24,7 @@ export default function Hero() {
     >
       <DotSphere className="pointer-events-none absolute top-1/2 left-1/2 aspect-square w-[min(84vw,780px)] -translate-x-1/2 -translate-y-[56%]" />
 
-      <Reveal className="relative flex flex-1 items-center pt-32">
+      <Reveal data-intro-gate className="relative flex flex-1 items-center pt-32">
         <h1 className="w-full font-display text-display leading-[0.94] font-medium tracking-[-0.02em] text-bg-secondary uppercase">
           <span data-reveal style={stagger(0)} className="block">
             Building AI that
@@ -31,7 +35,10 @@ export default function Hero() {
         </h1>
       </Reveal>
 
-      <Reveal className="relative grid items-start gap-8 border-t border-mixed/60 pt-7 md:grid-cols-[auto_1fr_auto] md:gap-12">
+      <Reveal
+        data-intro-gate
+        className="relative grid items-start gap-8 border-t border-mixed/60 pt-7 md:grid-cols-[auto_1fr_auto] md:gap-12"
+      >
         <div data-reveal style={stagger(0, 140)}>
           <BracketLink href="#contact" className="-ml-2 text-bg-secondary">
             Contact us
