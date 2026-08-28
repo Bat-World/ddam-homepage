@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Archivo, Azeret_Mono } from "next/font/google";
 import "./globals.css";
 import LaunchIntro, { INTRO_SEEN_KEY } from "./components/launch-intro";
@@ -71,6 +71,39 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+  applicationName: "Dentsu Data Artist Mongol",
+  authors: [{ name: "Dentsu Data Artist Mongol LLC" }],
+  creator: "Dentsu Data Artist Mongol LLC",
+  publisher: "Dentsu Data Artist Mongol LLC",
+  category: "technology",
+  // The site is a single scrolling page with a mailto: as its only action, so
+  // phone/address autolinking only ever adds unwanted styling on iOS.
+  formatDetection: { telephone: false, address: false, email: false },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#111111",
+  colorScheme: "dark",
+};
+
+// Organisation markup for search results and the knowledge panel. Only facts
+// PRODUCT.md lists as verified — no client, headcount or award claims beyond
+// what the page itself already states.
+const ORGANIZATION_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Dentsu Data Artist Mongol LLC",
+  alternateName: "DDAM",
+  url: SITE_URL,
+  logo: `${SITE_URL}/icon.svg`,
+  description: DESCRIPTION,
+  email: "info@mn.data-artist.com",
+  parentOrganization: { "@type": "Organization", name: "Dentsu Digital Inc." },
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Ulaanbaatar",
+    addressCountry: "MN",
+  },
 };
 
 // Runs before first paint so a repeat load never flashes the intro overlay.
@@ -86,6 +119,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: introSeenScript }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(ORGANIZATION_JSON_LD),
+          }}
+        />
         {/* Two things here depend on JS and have to fail open.
             · Scroll reveals start hidden and are unhidden by an observer, so
               with no JS there is nothing to unhide them.

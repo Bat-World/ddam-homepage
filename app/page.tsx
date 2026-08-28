@@ -8,11 +8,16 @@ import HistorySection from "./components/history-section";
 import NewsSection from "./components/news-section";
 import RisePanel from "./components/rise-panel";
 import ServiceOrbit from "./components/service-orbit";
+import WarmPageImages from "./components/warm-page-images";
 import WorkspaceSection from "./components/workspace-section";
 
 export default function Home() {
   return (
     <main className="flex-1">
+      {/* Fetches the office photographs during the launch intro — see
+          warm-images.tsx. Renders nothing. */}
+      <WarmPageImages />
+
       <Hero />
       <RisePanel>
         <EthosSection />
