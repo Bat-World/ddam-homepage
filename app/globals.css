@@ -162,6 +162,28 @@ header[data-hidden="true"]:focus-within {
  * Both rules sit inside the motion query, so a reduced-motion visitor never
  * gets the hidden start state at all — there is nothing to un-hide.
  */
+/*
+ * The four artworks are ~950 <path> elements between them, all four in the tree
+ * at once because the orbit crossfades between the cards. Rendering work for
+ * the ones the visitor is not looking at is work for nothing, and it is not
+ * cheap: invalidating a custom property on the orbit stage cost 43-52ms of
+ * style and layout before the dots were collapsed into paths, 11-20ms after,
+ * and 0.5ms with this rule. The stage hands off between cards four times as it
+ * scrolls, so those are the frames this buys back.
+ *
+ * `aspect-ratio` is required, not decorative. `content-visibility: auto` brings
+ * size containment with it, and a contained <svg> can no longer work its width
+ * out from its own viewBox — measured, the artwork went from 165x220 to 0x220
+ * bare, and to 300x220 with an intrinsic-size fallback. Stating the viewBox's
+ * ratio in CSS gives the width somewhere to come from, and all four boxes
+ * measure 165x220 again.
+ */
+.dot-art {
+  aspect-ratio: 300 / 400;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 165px auto 220px;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   /*
    * `translate` is listed alongside `transform` on purpose: Tailwind v4's
@@ -574,6 +596,197 @@ header[data-hidden="true"]:focus-within {
   }
 }
 
+/*
+ * Short viewports — a handset, or a laptop in landscape with the browser chrome
+ * taking its cut. Below `lg` the caption and the reel are stacked in one column
+ * instead of set side by side, so the stage has to hold both inside a screen
+ * that is already short, and the 1.6-zone floor above is what pushes it past
+ * its own height: measured, the stage overran by 106px at 375x667 and by 65px
+ * at 820x700.
+ *
+ * The reel is the part that gives, which is what the base rule already says it
+ * should be. A little over one photograph still reads as a column passing
+ * through; a clipped caption reads as a bug.
+ *
+ * These come last of the three on purpose — they have to beat the min-width
+ * rule above, because a 1024-wide window can still be 650 tall.
+ */
+@media (max-height: 780px) and (max-width: 1023px), (max-height: 660px) {
+  .zone-reel-frame {
+    --zone-h: min(30svh, 12rem);
+    --zone-gap: 1rem;
+
+    min-height: calc(var(--zone-h) * 1.15);
+  }
+
+  .zone-stage {
+    padding-top: 5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+/* Landscape on a handset. The stage is barely taller than the header it clears,
+   so the reel drops to a single frame and the padding to the minimum that keeps
+   the label out from under the fixed bar. */
+@media (max-height: 560px) {
+  .zone-reel-frame {
+    --zone-h: min(46svh, 9rem);
+
+    min-height: var(--zone-h);
+  }
+
+  .zone-stage {
+    padding-top: 4rem;
+    padding-bottom: 1rem;
+  }
+}
+
+/* Below this the caption and one photograph only just co-exist, so the gaps
+   between them close to the smallest that still reads as separation. */
+@media (max-height: 480px) {
+  .zone-reel-frame {
+    --zone-h: min(40svh, 7rem);
+  }
+}
+
+/*
+ * Short but wide — a handset held sideways, or a laptop window squashed down.
+ *
+ * Both pinned stages set their two halves side by side at `lg` and stack them
+ * below it, on the reasoning that a narrow screen has height to spare. A
+ * landscape handset has the opposite: 844px of width and 390px of height, where
+ * stacking is the one arrangement that cannot fit. Measured, the timeline stage
+ * pushed its milestone copy 220px past its own bottom edge — the paragraph, the
+ * headcount and the month were simply not on screen, which is content lost
+ * rather than a layout that looks tight.
+ *
+ * So the side-by-side arrangement is keyed off available height as well as
+ * width. It is the same layout `lg` already asks for, reached by the other
+ * axis; nothing new is introduced.
+ */
+@media (min-width: 600px) and (max-height: 660px) {
+  /* Two lines of display type at the top of a 375px stage is a quarter of it. */
+  .year-stage-inner h2,
+  .zone-stage h2 {
+    font-size: 1.375rem;
+  }
+
+  .year-grid {
+    grid-template-columns: 9rem minmax(0, 1fr);
+    gap: 1.75rem;
+    margin-top: 1rem;
+  }
+
+  .zone-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2rem;
+    margin-top: 1rem;
+  }
+
+  .year-stage-inner,
+  .zone-stage {
+    padding-top: 3.75rem;
+    padding-bottom: 0.5rem;
+  }
+}
+
+/* The shortest stage this page is asked to hold — a small handset turned
+   sideways. The header clears the fixed bar and nothing more. */
+@media (max-height: 400px) {
+  .year-stage-inner,
+  .zone-stage {
+    padding-top: 3.25rem;
+  }
+
+  .year-stage-inner h2,
+  .zone-stage h2 {
+    font-size: 1.25rem;
+  }
+
+  .orbit-card p:not(:last-child) {
+    line-height: 1.5;
+  }
+
+  /* The milestone itself, the last five pixels at 667x375. */
+  .era-copy p:last-child {
+    line-height: 1.45;
+  }
+}
+
+/* Narrow and short — a small handset in landscape, where there is not enough
+   width to set the two halves side by side either. The stage keeps the stack
+   and buys the room back from its own gaps. */
+@media (max-width: 599px) and (max-height: 660px) {
+  .year-stage-inner,
+  .zone-stage {
+    padding-top: 3.75rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .year-grid,
+  .zone-grid {
+    margin-top: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  /* The headline is two lines of display type standing above everything the
+     stage has to fit; half a line of lead is the cheapest room on the screen. */
+  .year-stage-inner h2 {
+    margin-top: 0.5rem;
+  }
+}
+
+/*
+ * The orbit card, on a stage that has run short of height.
+ *
+ * The card is a fixed vertical stack — artwork, title, body, counter — inside a
+ * pin that is exactly one screen tall, so every pixel the artwork takes is one
+ * the copy cannot have. Measured, the stage overran by 10px at 1024x600 and by
+ * 115px in landscape on a handset, and in both cases the artwork is the term
+ * with the most room to give: it is a decorative mark, and the sentence under
+ * it is the page's primary persuasive copy.
+ *
+ * Height-keyed rather than width-keyed, because the stage's problem is height —
+ * a 1024-wide window can still be 600 tall.
+ */
+@media (max-height: 660px) {
+  .orbit-card .dot-art {
+    height: 130px;
+  }
+}
+
+@media (max-height: 600px) {
+  .orbit-card .dot-art {
+    height: 84px;
+  }
+
+  .orbit-card h3 {
+    font-size: 1.5rem;
+  }
+
+  /* The 00/04 counter. Its 2rem lead is the largest single gap in the card. */
+  .orbit-card p:last-child {
+    margin-top: 1rem;
+  }
+}
+
+/* Landscape on a handset. The gaps between the four parts of the card go last,
+   after the artwork has already given what it can. */
+@media (max-height: 440px) {
+  .orbit-card .dot-art {
+    height: 56px;
+  }
+
+  .orbit-card h3,
+  .orbit-card p:not(:last-child) {
+    margin-top: 0.75rem;
+  }
+
+  .orbit-card p:last-child {
+    margin-top: 0.5rem;
+  }
+}
+
 .zone-reel {
   position: absolute;
   inset-inline: 0;
@@ -774,6 +987,36 @@ header[data-hidden="true"]:focus-within {
 @media (max-height: 700px) {
   .year-rail-frame {
     min-height: calc(var(--rail-step) * 2);
+  }
+}
+
+/* Landscape, where even two steps of rail is more than the stage can pay for.
+   One step still shows a spine with a node on it, which is all the rail has to
+   establish — the year, the month strip and the entry are the parts that carry
+   the meaning, and they are what the height goes to. */
+@media (max-height: 660px) {
+  .year-rail-frame {
+    min-height: var(--rail-step);
+    max-height: 100%;
+  }
+
+  /*
+   * The entry column — month strip, headcount, milestone — is what the stage
+   * actually runs out of room for: measured at 667x375 it wanted 268px inside a
+   * row that had 178. The rail was the wrong suspect; it gives its height back
+   * happily, and the column above never asked for less.
+   *
+   * The paragraph and the headcount are the content, so the room comes from the
+   * gaps between the three blocks and from the tick area of the strip. The
+   * spacing is `mt-6` and `mt-9` on the elements themselves, so it is reset here
+   * rather than at the source, where the tall-stage values are correct.
+   */
+  .year-grid > div:last-child > * + * {
+    margin-top: 0.5rem;
+  }
+
+  .month-strip {
+    --tick-area: 1.1rem;
   }
 }
 

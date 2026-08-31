@@ -221,6 +221,93 @@ function ribbon(): Band[] {
 
 const VARIANTS = { lattice, wave, burst, ribbon };
 
+/*
+ * ── Why the dots are paths and not circles ───────────────────────────────────
+ *
+ * Each variant draws 500–1200 dots. As one <circle> apiece that is 3,027
+ * elements across the four artworks the orbit holds at once — 82% of the
+ * document's nodes and 195KB of its 333KB of HTML, for decoration.
+ *
+ * Measured on the built site: invalidating a custom property on the orbit stage
+ * cost 43–52ms of style and layout with the circles in the tree and 0.8ms with
+ * them removed. The orbit hands off between cards four times as it scrolls, so
+ * that is four dropped frames on a desktop and considerably worse on a phone,
+ * in the section the page is built around.
+ *
+ * A dot is a filled subpath, so every dot at the same opacity can share one
+ * <path>: the `d` below is the standard two-arc circle, drawn from the dot's
+ * own centre. Opacity is what forces a split, so it is quantised — the dots are
+ * 1.4–1.8px against a flat ground and a 5% step between them is not resolvable,
+ * where the node it saves is.
+ *
+ * The <g> per band stays exactly as it was. It carries the entrance animation's
+ * custom properties, and grouping happens inside it, so nothing about the
+ * motion changes.
+ */
+const OPACITY_STEP = 0.05;
+
+/*
+ * One dot, as a subpath, written as small as it goes:
+ *   · coordinates are relative to where the previous dot's arcs finished, so
+ *     the numbers are short hops rather than absolute positions
+ *   · one decimal — the viewBox is 300x400 drawn at 100-220px, where 0.1 of a
+ *     unit is around a twentieth of a pixel
+ *   · the second arc omits its `a`, which SVG reads as a repeat of the last
+ *     command
+ *   · `-` is its own separator, so the space before a negative number goes
+ *
+ * The arcs leave the pen at the dot's left edge (x - r, y), which is what the
+ * next dot measures its hop from.
+ */
+function dotSubpath(dot: Dot, from: { x: number; y: number } | null) {
+  const { x, y, r } = dot;
+  const n = (v: number) => {
+    const s = v.toFixed(1).replace(/\.0$/, "");
+    return s.startsWith("0.") ? s.slice(1) : s.replace("-0.", "-.");
+  };
+  const gap = (v: number) => (v < 0 ? n(v) : ` ${n(v)}`);
+
+  // Absolute for the first dot in a bucket, a relative hop for every one after.
+  const move = from
+    ? `m${n(x - r - from.x)}${gap(y - from.y)}`
+    : `M${n(x)}${gap(y)}m${n(-r)} 0`;
+
+  return `${move}a${n(r)}${gap(r)} 0 1 0${gap(r * 2)} 0${gap(r)}${gap(r)} 0 1 0${gap(-r * 2)} 0`;
+}
+
+/** A band's dots, bucketed by quantised opacity into one `d` string each. */
+function bandPaths(dots: Dot[]) {
+  const buckets = new Map<
+    string,
+    { parts: string[]; pen: { x: number; y: number } }
+  >();
+
+  for (const dot of dots) {
+    const o = dot.o * falloff(dot.x, dot.y);
+    // Below this it is a smudge that costs a node; drop it.
+    if (o < 0.04) continue;
+
+    const key = Math.min(1, Math.round(o / OPACITY_STEP) * OPACITY_STEP).toFixed(
+      2,
+    );
+    const bucket = buckets.get(key);
+    if (bucket) {
+      bucket.parts.push(dotSubpath(dot, bucket.pen));
+    } else {
+      buckets.set(key, { parts: [dotSubpath(dot, null)], pen: { x: 0, y: 0 } });
+    }
+    // Where the arcs left the pen, for the next dot in this bucket to hop from.
+    const pen = buckets.get(key)!.pen;
+    pen.x = dot.x - dot.r;
+    pen.y = dot.y;
+  }
+
+  return [...buckets].map(([opacity, bucket]) => ({
+    opacity,
+    d: bucket.parts.join(""),
+  }));
+}
+
 export type DotArtVariant = keyof typeof VARIANTS;
 
 export default function DotArt({
@@ -251,20 +338,9 @@ export default function DotArt({
             } as React.CSSProperties
           }
         >
-          {band.dots.map((d, j) => {
-            const o = d.o * falloff(d.x, d.y);
-            // Below this it is a smudge that costs a DOM node; drop it.
-            if (o < 0.04) return null;
-            return (
-              <circle
-                key={j}
-                cx={d.x.toFixed(2)}
-                cy={d.y.toFixed(2)}
-                r={d.r}
-                opacity={o.toFixed(2)}
-              />
-            );
-          })}
+          {bandPaths(band.dots).map((p) => (
+            <path key={p.opacity} d={p.d} opacity={p.opacity} />
+          ))}
         </g>
       ))}
     </svg>

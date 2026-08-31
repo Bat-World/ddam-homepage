@@ -124,7 +124,7 @@ export default function WorkspaceSection() {
           tall for its whole run and the scroll only ever advances the reel.
         */}
         <div className="sticky top-0 h-svh overflow-hidden">
-          <div className="mx-auto flex h-full max-w-[1600px] flex-col px-6 pt-28 pb-12">
+          <div className="zone-stage mx-auto flex h-full max-w-[1600px] flex-col px-6 pt-28 pb-12">
             {/*
               The section label, and nothing else. The headline and the
               paragraph that used to stand here said what the rooms say better,
@@ -143,7 +143,7 @@ export default function WorkspaceSection() {
 
             {/* The reel takes whatever the header leaves, so the stage fits the
                 screen it's given rather than assuming a tall one. */}
-            <div className="mt-8 grid min-h-0 flex-1 items-center gap-8 lg:grid-cols-2 lg:gap-20">
+            <div className="zone-grid mt-8 grid min-h-0 flex-1 items-center gap-8 lg:grid-cols-2 lg:gap-20">
               {/*
                 The captions stack in one grid cell rather than being absolutely
                 positioned, so the column still takes the height of the longest
