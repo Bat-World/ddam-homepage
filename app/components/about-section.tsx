@@ -2,8 +2,15 @@ import Reveal from "./reveal";
 import { stagger } from "./stagger";
 
 /**
- * About: one claim, then the three things that evidence it — what the team can
- * build, where it sits, and what stands behind it.
+ * About: one claim, the argument for it, then the three things that evidence it
+ * — what the team can build, where it sits, and what stands behind it.
+ *
+ * "A local team with a global backbone" was a heading and nothing more: the
+ * blocks under it list offices and corporate lines, which show reach but never
+ * say why reach should be read as credibility. The intro paragraph is that
+ * argument, and it is the section's answer to why a buyer should trust this
+ * company rather than any other young AI shop — the standard arrived before the
+ * market did.
  *
  * This absorbed the separate "Global reach" band, which was making the same
  * argument a second time. Both opened on a headline saying the company is local
@@ -31,15 +38,15 @@ import { stagger } from "./stagger";
 const CORE = [
   {
     name: "AI & data",
-    body: "Machine learning on a robust data analytics foundation.",
+    body: "Machine learning built on data engineering we did ourselves, so the model and the pipeline under it answer to one team.",
   },
   {
     name: "Cloud native",
-    body: "Scalable backend for global bridge operations.",
+    body: "Scalable backends built to the review standards of the group's Tokyo practice, not to whatever ships fastest.",
   },
   {
     name: "Agile PoC",
-    body: "Rapid prototyping without platform lock.",
+    body: "Rapid prototyping with no platform lock-in, so a no costs you nothing you cannot walk away from.",
   },
 ];
 
@@ -112,11 +119,6 @@ export default function AboutSection() {
             About us
           </p>
 
-          {/*
-            The headline stands alone — no supporting paragraph, and so no
-            two-column grid to hold one. Everything below it is the evidence,
-            which is what lets the claim stay a claim.
-          */}
           <h2
             data-reveal
             style={stagger(1)}
@@ -125,6 +127,39 @@ export default function AboutSection() {
             A local team with
             <br />a global backbone.
           </h2>
+
+          {/*
+            The headline used to stand alone, on the argument that the blocks
+            below were its evidence. They are evidence of reach — offices, a
+            parent company, a network — and reach is not the same claim as
+            standard. This paragraph is the difference between the two.
+
+            The origin argument this used to carry now opens EthosSection, two
+            screens after the hero. It is the thesis of the whole page — the
+            standard arrived before the market did — and a thesis stated at 60%
+            scroll depth is a thesis nobody read. What stays here is the part
+            that only ever worked as evidence: the order things arrived in, and
+            why a buyer should read reach as credibility rather than as a logo
+            being borrowed.
+
+            No fact here is invented. The five years are 2018 to 2023 as
+            recorded in HistorySection; the local-adaptation half is the
+            company's own stated positioning.
+          */}
+          <p
+            data-reveal
+            style={stagger(2)}
+            className="mt-8 max-w-3xl text-lead leading-[1.65] text-light-gray"
+          >
+            Reach is easy to claim and easy to discount — every subsidiary can
+            point at a parent. What matters is the order things arrived in.
+            The methods here spent five years under Japanese enterprise review
+            before DDAM took a client of its own, and they are delivered by a
+            team that lives with the data, the languages and the regulations
+            that actually apply in Mongolia. A
+            local agency cannot honestly claim the first half. A foreign
+            consultancy cannot honestly claim the second.
+          </p>
         </Reveal>
 
         {/* ----------------------------------------------- the technical core */}

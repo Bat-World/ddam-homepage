@@ -16,6 +16,18 @@ Secondary (confirmed, served by the careers section): Mongolian data, AI, engine
 
 Dentsu Data Artist Mongol LLC is a Mongolian AI, data and digital-marketing consultancy operating as a subsidiary of Dentsu Digital Inc. within the dentsu group. The homepage exists to establish credibility with enterprise buyers and open a conversation. Success is a qualified new-business enquiry to `info@mn.data-artist.com`.
 
+## Core Concept
+
+**DDAM is a proving ground.** The company was dentsu's R&D centre in Mongolia from 2018 — the group's own experiment before it was anyone's partner — and became a subsidiary of Dentsu Digital in 2023. One frame, three levels, all of them already on the record:
+
+- **Origin** — the standard arrived before the market did. Most companies this young grow outward from local clients and earn an enterprise standard afterwards; this one inherited it first.
+- **Service** — the Proof of Concept practice sells the ability to reach an honest *no*, cheaply, before a client spends a year building.
+- **People** — ~150 today, tripled in three years, working slightly ahead of what they have done before under expert review. The energy is not "we are young"; it is that the company was built to test things and so has no inherited ceiling.
+
+This is the answer to the three questions the site has to survive: where the energy comes from, why a client should trust DDAM specifically, and what separates it from another young AI company. Copy that cannot be traced back to one of the three levels is generic and should be cut.
+
+Framing risk to hold: "we were dentsu's R&D centre" can also be heard as *offshore back office*. Every statement of the origin must carry the standard with it — held to Japanese enterprise practice, not doing someone else's overflow.
+
 ## Positioning
 
 Enterprise-grade methods proven across the global dentsu network, delivered locally by a team based in Ulaanbaatar and adapted to the data, languages and regulations that actually apply in Mongolia. The stated working stance: scope against a decision the business already makes, engineer the data that feeds it, and stay on after launch to prove the number moved. A local agency cannot truthfully claim the network backbone; a foreign consultancy cannot truthfully claim the local adaptation.

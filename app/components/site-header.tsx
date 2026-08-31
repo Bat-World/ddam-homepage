@@ -1,6 +1,8 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { resolveHref } from "./anchor-href";
 import LogoMark from "./logo-mark";
 
 /**
@@ -38,6 +40,8 @@ const NAV = [
 const THRESHOLD = 50;
 
 export default function SiteHeader() {
+  const pathname = usePathname();
+  const onHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -169,7 +173,7 @@ export default function SiteHeader() {
             same box, so neither reserves space for the other.
           */}
           <a
-            href="#top"
+            href={resolveHref("#top", onHome)}
             aria-label="Dentsu Data Artist Mongol — home"
             className="relative block h-10 w-[190px] shrink-0 overflow-hidden transition-[width,height] delay-150 duration-300 ease-brand group-data-[scrolled=true]:h-7 group-data-[scrolled=true]:w-6"
           >
@@ -195,11 +199,11 @@ export default function SiteHeader() {
             className="w-8 grow transition-[flex-grow] duration-500 ease-brand group-data-[scrolled=true]:grow-0"
           />
 
-          <nav className="hidden items-center gap-10 md:flex">
+          <nav className="hidden items-center gap-6 md:flex lg:gap-10">
             {NAV.map((item) => (
               <a
                 key={item.href}
-                href={item.href}
+                href={resolveHref(item.href, onHome)}
                 className="hover-mark font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase transition-colors duration-300 hover:text-brand-white"
               >
                 {item.label}
@@ -248,7 +252,7 @@ export default function SiteHeader() {
             {NAV.map((item) => (
               <a
                 key={item.href}
-                href={item.href}
+                href={resolveHref(item.href, onHome)}
                 onClick={closeMenu}
                 className="hover-mark font-display text-display-sm tracking-tight text-brand-white uppercase"
               >

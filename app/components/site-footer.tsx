@@ -1,3 +1,8 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
+import { resolveHref } from "./anchor-href";
 import LogoMark from "./logo-mark";
 import Reveal from "./reveal";
 import { stagger } from "./stagger";
@@ -33,7 +38,13 @@ const COLUMNS = [
   },
 ];
 
+/*
+ * A client component only so it can read the pathname — see resolveHref. There
+ * is no interactivity here; the whole footer is static markup.
+ */
 export default function SiteFooter() {
+  const onHome = usePathname() === "/";
+
   return (
     <footer className="surface-lift border-t border-mixed/50 bg-brand-black">
       <Reveal className="mx-auto max-w-[1600px] px-6 py-20">
@@ -64,7 +75,7 @@ export default function SiteFooter() {
                 {column.links.map(([label, href]) => (
                   <li key={label}>
                     <a
-                      href={href}
+                      href={resolveHref(href, onHome)}
                       className="hover-mark hover-mark-flush text-size3 text-bg-secondary transition-opacity hover:opacity-70"
                     >
                       {label}

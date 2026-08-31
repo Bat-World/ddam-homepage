@@ -30,26 +30,36 @@ type Service = {
   body: string;
 };
 
+/*
+ * Order is the argument, not the org chart.
+ *
+ * Proof of Concept & R&D leads. It sat third — behind the two practices that
+ * bill the most — which put the company's own origin third in its own list of
+ * what it does. A visitor reading top to bottom now meets the proving ground
+ * first: find out whether this is worth building, then build it, on data we
+ * made trustworthy, and market it off the same spine. Reverting is a matter of
+ * moving one object back to third.
+ */
 const SERVICES: Service[] = [
+  {
+    title: ["Proof of Concept", "& R&D"],
+    art: "burst",
+    body: "Where most engagements start. A short, funded experiment answering one question: is this worth building? A working prototype, an honest cost model, and a clear go or no-go — including the no, which costs far less here than a year into a build.",
+  },
   {
     title: ["AI Solution", "Development"],
     art: "lattice",
-    body: "From use-case discovery to a model in production. Forecasting, personalisation, document intelligence and conversational systems — scoped against a decision your business already makes.",
+    body: "From a proven use case to a model in production. Forecasting, personalisation, document intelligence and conversational systems — scoped against a decision your business already makes, never against a technology we want to use.",
   },
   {
     title: ["Data Engineering", "& Analytics"],
     art: "wave",
-    body: "Pipelines, warehouses and governance that hold up under load. We make the data trustworthy first, then build the dashboards and measurement that leadership can act on.",
-  },
-  {
-    title: ["Proof of Concept", "& R&D"],
-    art: "burst",
-    body: "Short, funded experiments that answer one question: is this worth building? A working prototype, an honest cost model, and a clear go or no-go at the end of it.",
+    body: "Nothing is worth proving on data nobody trusts. Pipelines, warehouses and governance that hold up under load first, then the dashboards and measurement that leadership can act on.",
   },
   {
     title: ["Digital", "Marketing"],
     art: "ribbon",
-    body: "Performance, brand and CRM run on the same data spine as everything else — so audience, creative and spend are optimised against outcomes rather than platform metrics.",
+    body: "Performance, brand and CRM run on the same data spine as everything else — so audience, creative and spend are measured against outcomes rather than platform metrics.",
   },
 ];
 

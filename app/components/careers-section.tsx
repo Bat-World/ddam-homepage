@@ -32,8 +32,10 @@ export default function CareersSection() {
             className="max-w-xl text-lead leading-[1.65]"
           >
             Engineers, analysts, strategists and designers — working on real
-            client systems from the most comfortable office in Ulaanbaatar, with
-            the training and mobility of the dentsu network behind it.
+            client systems from the most comfortable office in Ulaanbaatar,
+            with the training and mobility of the dentsu network behind it. We
+            hire for the ceiling you have not reached yet, not the one you
+            have.
           </p>
           <div data-reveal style={stagger(3)}>
             <BracketLink href="#careers" className="mt-9 -ml-2">

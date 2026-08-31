@@ -57,10 +57,10 @@ export default function Hero() {
           style={stagger(1, 140)}
           className="max-w-2xl font-mono text-size1 leading-[1.75] tracking-[0.05em] text-text-3 uppercase"
         >
-          Dentsu Data Artist Mongol is an AI and data consultancy inside the
-          dentsu network. Strategy. Engineering. Analytics. Growth. We build the
-          systems that turn data into decisions — and the teams that keep them
-          running.
+          We were the experiment before we were the partner. Dentsu Data
+          Artist Mongol is an AI and data company inside the dentsu group —
+          built to Japanese enterprise practice, delivered from Ulaanbaatar. We
+          prove what works before we ask anyone to build on it.
         </p>
 
         <LogoMark

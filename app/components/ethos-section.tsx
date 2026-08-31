@@ -3,9 +3,28 @@ import Reveal from "./reveal";
 import { stagger } from "./stagger";
 
 /**
- * Light break after the hero: the company philosophy, in the operations team's
- * own words — one positioning statement, then the three ways the company says
- * it creates value.
+ * Light break after the hero, and the page's thesis: where the company came
+ * from, why that is the reason to trust it, and the three ways it says it
+ * creates value.
+ *
+ * The origin argument used to live in AboutSection, roughly 60% down the page.
+ * It is the only claim on the site that no other young AI company could make —
+ * that the standard arrived before the market did — so it is stated here, in
+ * the second screen, before the services list rather than long after it. What
+ * stayed behind in About is the evidence for it: the offices, the group, the
+ * technical core.
+ *
+ * Two paragraphs, not one. The first is the argument (origin, standard, the
+ * inversion); the second is what follows from it (the method, and the growth
+ * record — 2018, ~150 today, tripled in three years). The growth line stays a
+ * sentence in the prose rather than becoming a figure in a box, because a stat
+ * block would read as a claim about scale and the sentence reads as a fact
+ * about the team.
+ *
+ * The three pillars carry the same concept at three levels — 01 why the
+ * company exists, 02 how it works for a client, 03 where its energy comes
+ * from. `label` and `ja` are the deck's own wording and are left alone; the
+ * English leads and bodies are what connect them to the argument above.
  *
  * The three pillars are set as one flush triptych of colour panels — the same
  * device the reference layout uses for its value cards. It's the only saturated
@@ -35,17 +54,17 @@ const PILLARS = [
   },
   {
     surface: "bg-steel text-brand-black",
-    lead: "Optimal solution, right on time.",
+    lead: "Prove it before you build it.",
     label: "By bringing solutions to our clients' business",
     ja: "ビジネスへのソリューション",
-    body: "Companies can't know whether applying AI will help their business until they test the hypothesis through a proof of concept — where logical thinking, performance speed and affordable cost are all vital. We provide the three of them without compromising quality.",
+    body: "No company can know whether applying AI will help its business until the hypothesis is tested. So we test it first — a funded proof of concept returning a working prototype, an honest cost model and a clear go or no-go, where logical thinking, performance speed and affordable cost are all vital. We provide the three of them without compromising quality.",
   },
   {
     surface: "bg-red text-brand-black",
-    lead: "Global exposure, mentored by experts.",
+    lead: "No ceiling we have found yet.",
     label: "By providing opportunities to our members",
     ja: "DDAMメンバーに機会提供",
-    body: "As a company that depends on human intelligence, we value our members above all and build development opportunities for them. They work with global clients under the mentorship of experts in the field, practising the soft skills that carry a career as well as the hard ones.",
+    body: "The energy here comes from the same place the standard does. As a company that depends on human intelligence, we give our members work slightly ahead of what they have done before: global clients, under the mentorship of experts in the field, practising the soft skills that carry a career as well as the hard ones. Nobody has yet found the top of what this team can take on.",
   },
 ];
 
@@ -66,9 +85,9 @@ export default function EthosSection() {
               style={stagger(1)}
               className="mt-7 font-display text-display-sm leading-[1.05] font-bold tracking-[-0.02em] uppercase"
             >
-              Always to create
+              A proving ground,
               <br />
-              high value.
+              before a partner.
             </h2>
           </div>
 
@@ -78,13 +97,26 @@ export default function EthosSection() {
               style={stagger(2)}
               className="max-w-2xl text-lead leading-[1.65]"
             >
-              We sit between the business question and the system that answers
-              it. Models are only worth what they change — so we scope against a
-              decision, engineer the data that feeds it, and stay on after
-              launch to prove the number moved. Backed by dentsu&apos;s global
-              practice, delivered by a team based here in Ulaanbaatar.
+              DDAM was established in 2018 as an R&amp;D centre inside the dentsu
+              group, and became a subsidiary of Dentsu Digital in 2023. For
+              those years the work was held to Japanese enterprise standards
+              before any of it went to market under our own name. Most
+              companies this young earn that standard afterwards; we inherited
+              it first.
             </p>
-            <div data-reveal style={stagger(3)}>
+            <p
+              data-reveal
+              style={stagger(3)}
+              className="mt-6 max-w-2xl text-lead leading-[1.65]"
+            >
+              So proving things before they are trusted is not a service we
+              added later. It is where we came from, and it is still the
+              method: scope against a decision the business already makes,
+              engineer the data that feeds it, stay on after launch to prove
+              the number moved. Approximately 150 people today, having tripled
+              in three years, delivered from Ulaanbaatar.
+            </p>
+            <div data-reveal style={stagger(4)}>
               <BracketLink href="#careers" className="mt-9 -ml-2">
                 Join us
               </BracketLink>

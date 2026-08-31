@@ -332,7 +332,7 @@ export default function HistorySection() {
           its right-hand column rather than as a composition.
         */}
         <div className="year-stage sticky top-0 h-svh overflow-hidden">
-          <div className="mx-auto flex h-full w-full max-w-[54rem] flex-col px-6 pt-24 pb-10 lg:pt-28 lg:pb-12">
+          <div className="year-stage-inner mx-auto flex h-full w-full max-w-[54rem] flex-col px-6 pt-24 pb-10 lg:pt-28 lg:pb-12">
             <Reveal className="shrink-0">
               <p
                 data-reveal
@@ -345,15 +345,15 @@ export default function HistorySection() {
                 style={stagger(1)}
                 className="mt-4 font-display text-display-sm lg:mt-5 leading-[1.05] font-bold tracking-[-0.02em] uppercase"
               >
-                Eight years,
+                Built inside.
                 <br />
-                three times the size.
+                Then turned outward.
               </h2>
             </Reveal>
 
             {/* The rail takes whatever the header leaves, so the stage fits the
                 screen it's given rather than assuming a tall one. */}
-            <div className="mt-6 grid min-h-0 flex-1 items-center gap-6 lg:mt-8 lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-10">
+            <div className="year-grid mt-6 grid min-h-0 flex-1 items-center gap-6 lg:mt-8 lg:grid-cols-[11rem_minmax(0,1fr)] lg:gap-10">
               {/*
                 The rail. Time on the left, what happened on the right — a
                 timeline reads "2026, and then this", not the other way round.
