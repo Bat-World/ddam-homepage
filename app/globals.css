@@ -210,13 +210,16 @@ header[data-hidden="true"]:focus-within {
    * over by the time the door opens. Blocks marked data-intro-gate wait for the
    * seam instead.
    *
-   * Both escape hatches matter: `intro-seen` is set before first paint when the
-   * intro already played this session, and `intro-done` the moment it finishes
-   * or is skipped — so nothing ever waits on an overlay that isn't there. The
-   * rule is inside the motion query, which covers reduced motion (where the
+   * `intro-done` lands the moment the sequence finishes, is skipped, or is
+   * declined outright for reduced motion — so nothing ever waits out a handoff
+   * for a door that is not going to open. It is added after hydration, which is
+   * why a class is safe here; the pre-paint flag this rule used to also test
+   * for is gone along with the session gate that needed it.
+   *
+   * The rule is inside the motion query, which covers reduced motion (where the
    * overlay never renders and there is no transition to delay anyway).
    */
-  html:not(.intro-seen):not(.intro-done) [data-intro-gate] [data-reveal] {
+  html:not(.intro-done) [data-intro-gate] [data-reveal] {
     transition-delay: calc(var(--reveal-delay, 0ms) + var(--intro-handoff));
   }
 
@@ -875,6 +878,49 @@ header[data-hidden="true"]:focus-within {
 
   .zone-copy[data-side="ahead"] {
     transform: translateY(1.5rem);
+  }
+}
+
+/*
+ * Leadership portraits.
+ *
+ * The office reel's idea of photography, applied to the one other place on the
+ * site that has any: the frame carries the page's 20px corner, and colour is
+ * something the picture is given rather than something it arrives with.
+ *
+ * Held monochrome at rest, full colour under the pointer. The four portraits
+ * were shot as one set — same grey sweep, same black shirt — so greyscale costs
+ * them almost nothing but skin tone, and it stops a row of four saturated faces
+ * from becoming the loudest thing on a page whose only other colour is the
+ * careers band. Contrast is nudged because removing colour flattens the
+ * separation between the shirt and the backdrop.
+ *
+ * Deliberately not a `[data-active]` switch like the reel: nothing here is
+ * scroll-driven, and there is no state to be in. A visitor who never hovers
+ * sees a complete monochrome row, which is the design and not a degraded one —
+ * so the colour is a reward for pointing at a face, never the only way to read
+ * who is in the picture. The name and title beside it are text.
+ */
+.portrait-frame {
+  overflow: hidden;
+  border-radius: var(--radius-xl);
+  /* Behind the picture while it decodes, and behind the transparent corners it
+     is clipped by — the same dark the sections it sits on are cut from. */
+  background-color: var(--color-dark-gray);
+}
+
+.portrait-photo {
+  filter: grayscale(1) contrast(1.06);
+}
+
+.portrait-frame:hover .portrait-photo,
+.portrait-card:focus-within .portrait-photo {
+  filter: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .portrait-photo {
+    transition: filter 700ms var(--ease-brand);
   }
 }
 

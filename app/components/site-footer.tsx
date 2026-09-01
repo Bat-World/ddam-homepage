@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 
 import { resolveHref } from "./anchor-href";
 import LogoMark from "./logo-mark";
+import NavLink from "./nav-link";
 import Reveal from "./reveal";
 import { stagger } from "./stagger";
 
@@ -22,6 +23,10 @@ const COLUMNS = [
     links: [
       ["About us", "#about"],
       ["History", "#history"],
+      // An absolute path, so resolveHref passes it through unchanged on and
+      // off the homepage. The band at #leadership is the summary; this is the
+      // president's message in full.
+      ["Leadership", "/leadership"],
       ["News", "#news"],
       ["Careers", "#careers"],
       ["Culture", "#culture"],
@@ -74,12 +79,12 @@ export default function SiteFooter() {
               <ul className="mt-6 space-y-3">
                 {column.links.map(([label, href]) => (
                   <li key={label}>
-                    <a
+                    <NavLink
                       href={resolveHref(href, onHome)}
                       className="hover-mark hover-mark-flush text-size3 text-bg-secondary transition-opacity hover:opacity-70"
                     >
                       {label}
-                    </a>
+                    </NavLink>
                   </li>
                 ))}
               </ul>

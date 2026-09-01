@@ -6,8 +6,8 @@ export type WarmSource = { srcSet: string; src: string; sizes: string };
 
 /**
  * Pulls the page's below-the-fold photography down while the launch intro is
- * still playing, so the office reel is already decoded by the time anyone
- * scrolls to it and never shows its blur placeholder.
+ * still playing, so the leadership portraits and the office reel are already
+ * decoded by the time anyone scrolls to them and never show a blur placeholder.
  *
  * The intro runs 2.6s over a hero that has nothing left to fetch, which is the
  * only window on this page where the connection is idle and the visitor is
@@ -19,11 +19,15 @@ export type WarmSource = { srcSet: string; src: string; sizes: string };
  * preload> in the head: both of those fetch on the critical path and compete
  * with the hero's own scripts and fonts for bandwidth. This starts after
  * hydration, at low priority, and can be declined outright on a metered
- * connection — 680kB of decoration is not worth someone's data plan.
+ * connection — the better part of a megabyte of decoration is not worth
+ * someone's data plan. That last clause is the reason this list is allowed to
+ * grow: every image added here is free on a fast connection and refused
+ * entirely on a metered one.
  *
- * `srcSet`/`sizes` are the ones the reel itself renders, handed down from the
- * server so the candidate picked here is the candidate the <img> later wants;
- * warming a different width would download the set twice.
+ * `srcSet`/`sizes` are the ones each section itself renders, handed down from
+ * the server so the candidate picked here is the candidate the <img> later
+ * wants; warming a different width would download the set twice. They arrive in
+ * scroll order and are started in that order — see warm-page-images.tsx.
  */
 export default function WarmImages({ sources }: { sources: WarmSource[] }) {
   useEffect(() => {

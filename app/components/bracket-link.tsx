@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 /**
  * CTA styled as a label inside four corner brackets — the brackets are drawn as
  * two-sided pseudo-boxes per corner rather than a full outline, so the frame
@@ -12,6 +14,33 @@
 const CORNER =
   "pointer-events-none absolute inset-0 before:absolute before:size-3 before:border-current before:transition-all after:absolute after:size-3 after:border-current after:transition-all group-hover:before:size-4 group-hover:after:size-4";
 
+const SHELL =
+  "group hover-mark hover-mark-cta relative inline-flex items-center px-8 py-4 font-mono text-size2 tracking-[0.18em] uppercase";
+
+/**
+ * Which element carries the href, decided by the href itself.
+ *
+ * A CTA on this site points at one of three things, and they want three
+ * different elements:
+ *
+ *   · `#contact`  — an id on the page the reader is already on. Has to stay a
+ *                   bare <a>: SmoothScroll claims exactly these, and routing it
+ *                   through next/link would take the eased scroll away from it.
+ *   · `mailto:`   — not a route at all.
+ *   · `/leadership`, `/#contact` — another route on this site.
+ *
+ * That last case is the one this exists for. As a bare <a> it was a full
+ * document load: the browser tears the page down, fetches and parses the bundle
+ * again, and React mounts from scratch — which meant the launch overlay
+ * remounted and played the whole rocket sequence in front of a reader who had
+ * just clicked "read the message". next/link makes it a client-side transition
+ * instead, so the route swaps in place with nothing to re-mount, and Next
+ * prefetches the destination while the link is merely in view.
+ */
+function isInternalRoute(href: string) {
+  return href.startsWith("/");
+}
+
 export default function BracketLink({
   href,
   children,
@@ -21,11 +50,8 @@ export default function BracketLink({
   children: React.ReactNode;
   className?: string;
 }) {
-  return (
-    <a
-      href={href}
-      className={`group hover-mark hover-mark-cta relative inline-flex items-center px-8 py-4 font-mono text-size2 tracking-[0.18em] uppercase ${className}`}
-    >
+  const body = (
+    <>
       <span
         aria-hidden="true"
         className={`${CORNER} before:top-0 before:left-0 before:border-t before:border-l after:right-0 after:bottom-0 after:border-r after:border-b`}
@@ -37,6 +63,20 @@ export default function BracketLink({
       <span className="transition-transform duration-300 ease-[var(--ease-brand)] motion-safe:group-hover:translate-x-[3px]">
         {children}
       </span>
+    </>
+  );
+
+  if (isInternalRoute(href)) {
+    return (
+      <Link href={href} className={`${SHELL} ${className}`}>
+        {body}
+      </Link>
+    );
+  }
+
+  return (
+    <a href={href} className={`${SHELL} ${className}`}>
+      {body}
     </a>
   );
 }

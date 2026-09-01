@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { resolveHref } from "./anchor-href";
 import LogoMark from "./logo-mark";
+import NavLink from "./nav-link";
 
 /**
  * Site header, with three scroll-driven states.
@@ -31,6 +32,7 @@ import LogoMark from "./logo-mark";
 const NAV = [
   { label: "Services", href: "#services" },
   { label: "About", href: "#about" },
+  { label: "Leadership", href: "#leadership" },
   { label: "News", href: "#news" },
   { label: "Careers", href: "#careers" },
   { label: "Contact", href: "#contact" },
@@ -87,14 +89,21 @@ export default function SiteHeader() {
     };
   }, [menuOpen]);
 
-  // The overlay is `md:hidden`, so crossing into desktop hides it visually while
+  // The overlay is `lg:hidden`, so crossing into desktop hides it visually while
   // React still thinks it's open — leaving the scroll lock on and the page
   // frozen with nothing left on screen to close. Close it on the breakpoint.
-  // Only the `change` event is needed: the trigger is `md:hidden` too, so the
+  // Only the `change` event is needed: the trigger is `lg:hidden` too, so the
   // menu can never have been opened at desktop width in the first place.
+  //
+  // The query has to name the same breakpoint those two utilities use, and it
+  // is the only place that breakpoint is written in JS rather than in a class —
+  // so moving one without the other closes the menu at a width where its own
+  // trigger is still on screen. It is `lg` rather than `md` because the nav
+  // grew a sixth item: six labels, the wordmark and the gaps between them come
+  // to roughly 870px, which does not fit a 768px tablet.
   useEffect(() => {
     if (!menuOpen) return;
-    const desktop = window.matchMedia("(min-width: 48rem)");
+    const desktop = window.matchMedia("(min-width: 64rem)");
     desktop.addEventListener("change", closeMenu);
     return () => desktop.removeEventListener("change", closeMenu);
   }, [menuOpen, closeMenu]);
@@ -172,7 +181,7 @@ export default function SiteHeader() {
             way opening as closing. Both layers are absolutely positioned in the
             same box, so neither reserves space for the other.
           */}
-          <a
+          <NavLink
             href={resolveHref("#top", onHome)}
             aria-label="Dentsu Data Artist Mongol — home"
             className="relative block h-10 w-[190px] shrink-0 overflow-hidden transition-[width,height] delay-150 duration-300 ease-brand group-data-[scrolled=true]:h-7 group-data-[scrolled=true]:w-6"
@@ -190,7 +199,7 @@ export default function SiteHeader() {
             <span className="absolute inset-0 flex items-center opacity-0 transition-opacity duration-150 group-data-[scrolled=true]:opacity-100 group-data-[scrolled=true]:delay-300 group-data-[scrolled=true]:duration-200">
               <LogoMark className="h-7 w-auto text-brand-white" />
             </span>
-          </a>
+          </NavLink>
 
           {/* What used to be `justify-between`. Its 2rem floor is the gap the
             closed capsule keeps between the mark and the links. */}
@@ -199,15 +208,15 @@ export default function SiteHeader() {
             className="w-8 grow transition-[flex-grow] duration-500 ease-brand group-data-[scrolled=true]:grow-0"
           />
 
-          <nav className="hidden items-center gap-6 md:flex lg:gap-10">
+          <nav className="hidden items-center gap-10 lg:flex">
             {NAV.map((item) => (
-              <a
+              <NavLink
                 key={item.href}
                 href={resolveHref(item.href, onHome)}
                 className="hover-mark font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase transition-colors duration-300 hover:text-brand-white"
               >
                 {item.label}
-              </a>
+              </NavLink>
             ))}
           </nav>
 
@@ -218,7 +227,7 @@ export default function SiteHeader() {
             aria-expanded={menuOpen}
             aria-controls={menuId}
             aria-haspopup="dialog"
-            className="hover-mark font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase md:hidden"
+            className="hover-mark font-mono text-size2 tracking-[0.16em] text-bg-secondary uppercase lg:hidden"
           >
             Menu
           </button>
@@ -237,7 +246,7 @@ export default function SiteHeader() {
           role="dialog"
           aria-modal="true"
           aria-label="Site menu"
-          className="fixed inset-0 z-50 flex flex-col bg-bg-primary px-6 py-6 md:hidden"
+          className="fixed inset-0 z-50 flex flex-col bg-bg-primary px-6 py-6 lg:hidden"
         >
           <div className="flex justify-end">
             <button
@@ -250,14 +259,14 @@ export default function SiteHeader() {
           </div>
           <nav className="flex flex-1 flex-col justify-center gap-6">
             {NAV.map((item) => (
-              <a
+              <NavLink
                 key={item.href}
                 href={resolveHref(item.href, onHome)}
                 onClick={closeMenu}
                 className="hover-mark font-display text-display-sm tracking-tight text-brand-white uppercase"
               >
                 {item.label}
-              </a>
+              </NavLink>
             ))}
           </nav>
         </div>

@@ -1104,9 +1104,8 @@
   }
 }
 
-/* Set by the inline script in the layout when the intro already played this
-   session. Hides the overlay in the very first paint, before the effect that
-   unmounts it has a chance to run — otherwise a repeat load flashes it. */
-:global(html.intro-seen) .overlay {
-  display: none;
-}
+/* There is no "already played this session" case any more. The intro is the
+   site's front door and plays whenever a homepage document is opened, refresh
+   included; what it must not do is play on a client-side navigation, and that
+   is decided in launch-intro.tsx where the router pathname actually lives. The
+   only pre-paint skip left is the reduced-motion rule above. */

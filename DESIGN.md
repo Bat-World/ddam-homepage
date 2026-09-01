@@ -112,7 +112,7 @@ Density is generous. Bands run 112–176px of vertical padding inside a 1600px m
 - Monospace uppercase labels in 0.12–0.18em tracking as the system's connective tissue
 - Corner-bracket registration marks in place of conventional buttons
 - Full-bleed colour panels that butt edge to edge with zero radius
-- SVG point-field artwork as the only imagery — no photography, no stock illustration
+- SVG point-field artwork as the system's own imagery; photography is admitted only as the company's own — the office rooms and the leadership portraits — always monochrome at rest, always in a 20px frame
 - Uppercase grotesque display type with negative tracking (−0.02em) and sub-1.05 leading
 - Band-based vertical rhythm that alternates dark, light, colour, dark
 - Motion with a single house easing and a universal reduced-motion path
@@ -249,16 +249,26 @@ The system has no filled buttons. Its call to action is the **bracket link**.
 
 ### Navigation
 
-- **Style:** Five monospace uppercase links at 12px / 0.16em tracking in Ash, 40px apart, hidden below `md` behind a "Menu" trigger.
+- **Style:** Six monospace uppercase links at 12px / 0.16em tracking in Ash, 40px apart, hidden below `lg` behind a "Menu" trigger. The breakpoint is a measurement, not a preference: six labels plus the wordmark and their gaps come to roughly 870px, which does not fit a 768px tablet. It is written twice — as `lg:` utilities and as the `64rem` matchMedia that closes the mobile overlay — and the two must be changed together.
 - **Hover:** Colour shifts Ash → Bone over 300ms. No underline, ever.
 - **Scrolled state:** The whole bar collapses to a centred Graphite/85% capsule with a 12px backdrop blur, `8px` radius and `12px 24px` padding, over 500ms on the house easing.
 - **Wordmark swap:** The two-line wordmark and the logo mark are stacked in one `overflow: hidden` box and the pair *slides* vertically between them. Never crossfade — a crossfade reads as a swap, a slide reads as one object moving.
 - **Hide-on-scroll:** Past one full viewport, 50px of accumulated downward scroll translates the header out; 50px upward brings it back. Never hides while the hero is still on screen.
 - **Mobile:** Full-screen Ink overlay with display-scale uppercase links and a "Close" label; body scroll is locked while open.
 
+### Photography
+
+Two surfaces carry photographs, both of them the company's own: the office reel in the work-environment band, and the leadership portraits. Everything below applies to both.
+
+- **Frame:** 20px radius — the same corner the bands lift over each other with. A hard-edged picture inside a page of soft-edged surfaces reads as pasted on. The frame carries a Graphite background so the transparent corners and the decoding gap cut to the page, not to white.
+- **Colour is given, not brought.** Every photograph is `grayscale(1) contrast(1.06)` at rest and comes to full colour only when it is the thing being pointed at — the active frame in the scroll-driven reel, the hovered face in a portrait row. A grid of saturated interiors fights itself and the rest of the page; one at a time does not.
+- **The monochrome state must be complete.** The colour is a reward, never the only way to read the picture. A visitor who never hovers, or who arrives on a touch screen, sees a finished design — so anything the photograph is saying must also be in the text beside it.
+- **`alt` follows the caption.** A room is described, because the room is information the caption does not carry. A headshot beside its own name and title takes `alt=""` — the only thing an alt could add there is a description of a real person's appearance.
+- **Transitions** run 700ms on the house easing, inside the reduced-motion query.
+
 ### Signature Component: Point-Field Artwork
 
-The only imagery in the system. Two forms: a rotating **dot sphere** behind the hero headline, and flat **dot fields** in four variants (lattice, wave, burst, ribbon) — one per practice in the service orbit plus one in the network band. Each field is an SVG whose `<g>` bands carry their own offset and delay, so a single CSS rule ripples the whole field on hover of the host element (`.dot-art-host`), using `transform-box: view-box` so offsets resolve against the SVG coordinate system. Colour is always inherited. This is the system's substitute for photography and it must stay so.
+The only imagery in the system. Two forms: a rotating **dot sphere** behind the hero headline, and flat **dot fields** in four variants (lattice, wave, burst, ribbon) — one per practice in the service orbit plus one in the network band. Each field is an SVG whose `<g>` bands carry their own offset and delay, so a single CSS rule ripples the whole field on hover of the host element (`.dot-art-host`), using `transform-box: view-box` so offsets resolve against the SVG coordinate system. Colour is always inherited. This is the system's substitute for *stock* imagery and it must stay so: where a page needs a picture and the company does not have one of its own, it gets a point field, never a licensed photograph.
 
 ### Signature Component: The Service Orbit
 
@@ -298,7 +308,7 @@ One easing for everything: `cubic-bezier(0.62, 0.16, 0.13, 1.01)`, a slight over
 - **Don't** round an internal seam or put a gap between two full-bleed bands — the butt joints are the composition.
 - **Don't** add a shadow to a resting surface. Shadows answer to hover, focus and overlay only.
 - **Don't** introduce a third typeface, or set body paragraphs in the monospace outside the hero standfirst and footer blurb.
-- **Don't** use photography or stock illustration. Imagery in this system is SVG point-field artwork.
+- **Don't** use stock photography or stock illustration. The only photographs in this system are the company's own — its rooms and its people — and they follow the Photography rules; everything else is SVG point-field artwork.
 - **Don't** crossfade the header wordmark into the logo mark — slide the stacked pair.
 - **Don't** underline navigation or footer links; state changes are colour and opacity.
 - **Don't** introduce a second easing curve for a UI state change; adjust duration instead.

@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Azeret_Mono } from "next/font/google";
 import "./globals.css";
-import LaunchIntro, { INTRO_SEEN_KEY } from "./components/launch-intro";
+import LaunchIntro from "./components/launch-intro";
 import SiteHeader from "./components/site-header";
 import SmoothScroll from "./components/smooth-scroll";
 import SiteFooter from "./components/site-footer";
@@ -106,11 +106,6 @@ const ORGANIZATION_JSON_LD = {
   },
 };
 
-// Runs before first paint so a repeat load never flashes the intro overlay.
-const introSeenScript = `try{if(sessionStorage.getItem(${JSON.stringify(
-  INTRO_SEEN_KEY,
-)}))document.documentElement.classList.add('intro-seen')}catch(e){}`;
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -118,7 +113,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${archivo.variable} ${azeretMono.variable} h-full antialiased`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: introSeenScript }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

@@ -41,7 +41,7 @@ Four practices run by one delivery team:
 - Proof of Concept & R&D — short funded experiments producing a working prototype, an honest cost model, and a go/no-go.
 - Digital Marketing — performance, brand and CRM run on the same data spine.
 
-Buyers evaluate on a desktop during a working day, often after an internal referral. The homepage is a single scrolling page with anchor navigation (`#services`, `#about`, `#careers`, `#contact`) rather than a multi-page site.
+Buyers evaluate on a desktop during a working day, often after an internal referral. The homepage is a single scrolling page with anchor navigation (`#services`, `#about`, `#leadership`, `#careers`, `#contact`). Two routes sit outside it, each because its content is longer than a band can hold: `/news/…` for a published article, and `/leadership` for the president's message in full. Both are summarised by a homepage band that links to them; neither is reachable any other way.
 
 ## Capabilities and Constraints
 
@@ -67,8 +67,10 @@ Real, verified facts safe to use:
 - The only Dentsu Digital subsidiary in Mongolia.
 - Four practices under one delivery team.
 - Headquarters in Ulaanbaatar; parent Dentsu Digital Inc.; dentsu group network.
+- The management team, supplied by the company with the official portrait set: Hatsumi Suzuki (鈴木初実), President and Executive Officer; Makito Tsukahara (塚原牧人), Executive Vice President; Khandmaa Batbayar (Б.Хандмаа), BPO Executive Member; Yoshiki Miyamoto (宮本良樹), Corporate Planning and Administration, Executive Officer. Held in `app/components/leadership.ts`.
+- The president's message, supplied as her own text and printed at `/leadership` with two orthographic edits recorded in that file. Nothing in it may be paraphrased into a claim elsewhere on the site — the ambition to be the group's AI development hub is hers to state in a signed letter, not a fact the page can assert on its own.
 
-Absent — must not be fabricated: client names, logos, case studies, testimonials, revenue or performance benchmarks, awards, press coverage, pricing, named team members, and named open roles. The news section and any proof block must not invent these.
+Absent — must not be fabricated: client names, logos, case studies, testimonials, revenue or performance benchmarks, awards, press coverage, pricing, named open roles, and any team member beyond the four listed above. The news section and any proof block must not invent these.
 
 ## Product Principles
 

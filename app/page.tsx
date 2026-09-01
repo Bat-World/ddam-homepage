@@ -5,6 +5,7 @@ import CultureSection from "./components/culture-section";
 import EthosSection from "./components/ethos-section";
 import Hero from "./components/hero";
 import HistorySection from "./components/history-section";
+import LeadershipSection from "./components/leadership-section";
 import NewsSection from "./components/news-section";
 import RisePanel from "./components/rise-panel";
 import ServiceOrbit from "./components/service-orbit";
@@ -34,6 +35,9 @@ export default function Home() {
       */}
       <AboutSection />
       <HistorySection />
+      {/* The timeline stops at the present; this is what the present is, in
+          faces — see leadership-section.tsx for why it sits here. */}
+      <LeadershipSection />
       <NewsSection />
       <CareersSection />
       <CultureSection />

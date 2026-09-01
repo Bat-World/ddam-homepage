@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import Reveal from "./reveal";
 import { stagger } from "./stagger";
 
@@ -52,7 +54,12 @@ export default function NewsSection() {
         <ul className="mt-12 border-t border-mixed/50">
           {NEWS.map((item, i) => (
             <li key={item.title} data-reveal style={stagger(i + 2, 110)}>
-              <a
+              {/* next/link, not a bare anchor: these leave the route, and as a
+                  plain <a> the click was a full document load that remounted
+                  the launch overlay and replayed the intro over the article.
+                  SmoothScroll only claims hrefs beginning with `#`, so nothing
+                  is taken from it here. */}
+              <Link
                 href={item.href}
                 className="group grid gap-4 border-b border-mixed/40 py-9 transition-[background-color,padding] duration-500 hover:bg-bg-primary/60 hover:pl-4 md:grid-cols-[160px_180px_1fr] md:items-baseline md:gap-8"
               >
@@ -68,7 +75,7 @@ export default function NewsSection() {
                 <span className="text-size7 leading-[1.4] text-bg-secondary transition-colors group-hover:text-brand-white">
                   {item.title}
                 </span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
