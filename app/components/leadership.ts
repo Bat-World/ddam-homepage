@@ -1,5 +1,24 @@
 import type { StaticImageData } from "next/image";
 
+/**
+ * Three of the four portraits are the studio files as delivered. The fourth,
+ * khandmaa-batbayar.webp, is re-cropped: she was shot from further back than
+ * the others, and at the delivered framing her head filled 0.33 of the visible
+ * 4:5 frame against 0.51-0.54 for the rest, with her eyeline 6 points lower.
+ * In a row of four that does not read as one photograph among four, it reads
+ * as one person standing behind the others.
+ *
+ * The crop is (193, 238)-(827, 1183) of the original 1000x1491 - the same 2:3
+ * ratio, so it drops into the same component with no per-person handling, and
+ * a straight crop rather than an upscale, so no pixel is invented. It puts her
+ * head at 0.51 and her eyeline at 0.37, between Miyamoto and Suzuki.
+ *
+ * The consequence to know about: it is 634px wide, so above roughly a 1500px
+ * viewport the browser upsamples it slightly where the other three still have
+ * native pixels. If the studio ever supplies her file shot at the same
+ * distance as the rest, replace it and delete this note - the numbers above
+ * are what it would need to match. `git log` has the delivered original.
+ */
 import hatsumiSuzuki from "@/public/leadership/hatsumi-suzuki.webp";
 import khandmaaBatbayar from "@/public/leadership/khandmaa-batbayar.webp";
 import makitoTsukahara from "@/public/leadership/makito-tsukahara.webp";
