@@ -34,7 +34,7 @@ import { stagger } from "../components/stagger";
 const TITLE = "Leadership — the management team of Dentsu Data Artist Mongol";
 
 const DESCRIPTION =
-  "A message from Hatsumi Suzuki, President of Dentsu Data Artist Mongol, on the ambition to become the dentsu group's global AI development hub — and the four executives who run the company.";
+  "A message from Hatsumi Imai, President of Dentsu Data Artist Mongol, on the ambition to become the dentsu group's global AI development hub — and the four executives who run the company.";
 
 export const metadata: Metadata = {
   title: "Leadership",

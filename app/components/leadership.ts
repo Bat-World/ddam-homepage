@@ -11,7 +11,7 @@ import type { StaticImageData } from "next/image";
  * The crop is (193, 238)-(827, 1183) of the original 1000x1491 - the same 2:3
  * ratio, so it drops into the same component with no per-person handling, and
  * a straight crop rather than an upscale, so no pixel is invented. It puts her
- * head at 0.51 and her eyeline at 0.37, between Miyamoto and Suzuki.
+ * head at 0.51 and her eyeline at 0.37, between Miyamoto and Imai.
  *
  * The consequence to know about: it is 634px wide, so above roughly a 1500px
  * viewport the browser upsamples it slightly where the other three still have
@@ -19,7 +19,7 @@ import type { StaticImageData } from "next/image";
  * distance as the rest, replace it and delete this note - the numbers above
  * are what it would need to match. `git log` has the delivered original.
  */
-import hatsumiSuzuki from "@/public/leadership/hatsumi-suzuki.webp";
+import hatsumiImai from "@/public/leadership/hatsumi-imai.webp";
 import khandmaaBatbayar from "@/public/leadership/khandmaa-batbayar.webp";
 import makitoTsukahara from "@/public/leadership/makito-tsukahara.webp";
 import yoshikiMiyamoto from "@/public/leadership/yoshiki-miyamoto.webp";
@@ -63,27 +63,27 @@ export type Leader = {
  */
 export const LEADERS: Leader[] = [
   {
-    name: "Hatsumi Suzuki",
-    native: "鈴木初実",
+    name: "Hatsumi Imai",
+    native: "今井初実",
     title: "President and Executive Officer",
-    image: hatsumiSuzuki,
+    image: hatsumiImai,
   },
   {
     name: "Makito Tsukahara",
     native: "塚原牧人",
-    title: "Executive Vice President",
+    title: "Vice President and Executive Officer",
     image: makitoTsukahara,
   },
   {
     name: "Khandmaa Batbayar",
     native: "Б.Хандмаа",
-    title: "BPO Executive Member",
+    title: "Digital Marketing Division, Executive Officer",
     image: khandmaaBatbayar,
   },
   {
     name: "Yoshiki Miyamoto",
     native: "宮本良樹",
-    title: "Corporate Planning and Administration, Executive Officer",
+    title: "Corporate Planning and Administration Division, Executive Officer",
     image: yoshikiMiyamoto,
   },
 ];

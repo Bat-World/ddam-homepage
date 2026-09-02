@@ -67,7 +67,7 @@ Real, verified facts safe to use:
 - The only Dentsu Digital subsidiary in Mongolia.
 - Four practices under one delivery team.
 - Headquarters in Ulaanbaatar; parent Dentsu Digital Inc.; dentsu group network.
-- The management team, supplied by the company with the official portrait set: Hatsumi Suzuki (鈴木初実), President and Executive Officer; Makito Tsukahara (塚原牧人), Executive Vice President; Khandmaa Batbayar (Б.Хандмаа), BPO Executive Member; Yoshiki Miyamoto (宮本良樹), Corporate Planning and Administration, Executive Officer. Held in `app/components/leadership.ts`.
+- The management team, supplied by the company with the official portrait set: Hatsumi Imai (今井初実), President and Executive Officer; Makito Tsukahara (塚原牧人), Vice President and Executive Officer; Khandmaa Batbayar (Б.Хандмаа), Digital Marketing Division, Executive Officer; Yoshiki Miyamoto (宮本良樹), Corporate Planning and Administration Division, Executive Officer. Held in `app/components/leadership.ts`.
 - The president's message, supplied as her own text and printed at `/leadership` with two orthographic edits recorded in that file. Nothing in it may be paraphrased into a claim elsewhere on the site — the ambition to be the group's AI development hub is hers to state in a signed letter, not a fact the page can assert on its own.
 
 Absent — must not be fabricated: client names, logos, case studies, testimonials, revenue or performance benchmarks, awards, press coverage, pricing, named open roles, and any team member beyond the four listed above. The news section and any proof block must not invent these.

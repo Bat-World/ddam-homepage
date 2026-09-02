@@ -55,11 +55,13 @@ export default function LeaderPortrait({
         <p className="mt-2 font-sans text-size4 leading-[1.4] text-light-gray">
           {leader.native}
         </p>
-        {/* 30ch, not the ~26 the longest title actually counts: `ch` measures
-            the zero glyph and knows nothing about letter-spacing, and 0.12em of
-            it makes every character about 1.12ch wide. At 26 the cap fell
-            inside the column and broke "Executive Vice President" across two
-            lines while the column had room for it. */}
+        {/* A measure cap, and it reads about 10% narrower than it looks: `ch`
+            measures the zero glyph and knows nothing about letter-spacing, so
+            0.12em of it makes every character about 1.12ch wide and 30ch holds
+            roughly 27. Every current title is longer than that and wraps — the
+            shortest is 31 characters, Miyamoto's is 65 — so the cap is now
+            setting how they wrap rather than saving any of them from it.
+            Widening it past the column buys nothing; the column is narrower. */}
         <p className="mt-4 max-w-[30ch] font-mono text-size2 leading-[1.6] tracking-[0.12em] text-text-3 uppercase">
           {leader.title}
         </p>
