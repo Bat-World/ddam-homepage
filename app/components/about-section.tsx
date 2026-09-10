@@ -134,31 +134,24 @@ export default function AboutSection() {
             parent company, a network — and reach is not the same claim as
             standard. This paragraph is the difference between the two.
 
-            The origin argument this used to carry now opens EthosSection, two
-            screens after the hero. It is the thesis of the whole page — the
-            standard arrived before the market did — and a thesis stated at 60%
-            scroll depth is a thesis nobody read. What stays here is the part
-            that only ever worked as evidence: the order things arrived in, and
-            why a buyer should read reach as credibility rather than as a logo
-            being borrowed.
+            The fuller origin argument opens EthosSection, two screens after
+            the hero. This is the short version of it: where the company
+            started, and that the order it worked in then — research first,
+            then build — is still the order it works in for clients.
 
-            No fact here is invented. The five years are 2018 to 2023 as
-            recorded in HistorySection; the local-adaptation half is the
-            company's own stated positioning.
+            No fact here is invented. 2018 and the R&D centre are as recorded
+            in HistorySection, and eight years is 2018 to 2026, the same span
+            the timeline runs.
           */}
           <p
             data-reveal
             style={stagger(2)}
             className="mt-8 max-w-3xl text-lead leading-[1.65] text-light-gray"
           >
-            Reach is easy to claim and easy to discount — every subsidiary can
-            point at a parent. What matters is the order things arrived in.
-            The methods here spent five years under Japanese enterprise review
-            before DDAM took a client of its own, and they are delivered by a
-            team that lives with the data, the languages and the regulations
-            that actually apply in Mongolia. A
-            local agency cannot honestly claim the first half. A foreign
-            consultancy cannot honestly claim the second.
+            We started in 2018 as an R&amp;D and development centre inside the
+            group. Research first, then build. Eight years later that&apos;s
+            still the order we work in — we just do it for clients now instead
+            of for ourselves.
           </p>
         </Reveal>
 
