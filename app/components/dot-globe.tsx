@@ -10,8 +10,8 @@ import { useEffect, useRef } from "react";
  * It replaced a rotating point cloud of a toono, and the swap is one of
  * meaning: an abstract cloud reads as decoration, whereas a named earth says
  * the thing this screen is for — a Mongolian consultancy inside a global
- * network. The pins are named for the same reason: three unexplained dots are
- * back to being decoration.
+ * network. The pins are named for the same reason: unexplained dots are back
+ * to being decoration.
  *
  * Drawn by COBE (WebGL, ~3kB, MIT): the land mass ships as an embedded texture
  * and is sampled into a dot grid on the GPU, so the whole thing costs one
@@ -74,6 +74,7 @@ const PHI_START = 3.09;
 const PLACES: { location: [number, number]; size: number; label: string }[] = [
   { location: [47.886, 106.906], size: 0.034, label: "Ulaanbaatar" },
   { location: [35.6762, 139.6503], size: 0.026, label: "Tokyo" },
+  { location: [28.6139, 77.209], size: 0.026, label: "New Delhi" },
   { location: [51.5072, -0.1276], size: 0.026, label: "London" },
 ];
 
