@@ -85,9 +85,9 @@ export default function EthosSection() {
               style={stagger(1)}
               className="mt-7 font-display text-display-sm leading-[1.05] font-bold tracking-[-0.02em] uppercase"
             >
-              A proving ground,
+              Always to create
               <br />
-              before a partner.
+              high value.
             </h2>
           </div>
 
