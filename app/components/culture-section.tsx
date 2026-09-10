@@ -16,11 +16,15 @@ import { stagger } from "./stagger";
  * grow, One team and Belong & connect; and the reasons restated them again —
  * "We achieve more together" sat four cells from "Achieve more together".
  *
- * The paragraph survived because it says all three in the company's own voice
- * in one breath, and because it is the right column of the header pattern:
- * without it the hairline above it rules an empty column. Learn & grow has
- * since been folded into Growth & learning. One team and Belong & connect are
- * in git, as are the two cells cut in the trim to three — see REASONS.
+ * The paragraph stays because it is the right column of the header pattern:
+ * without it the hairline above it rules an empty column. Its second sentence
+ * is the president's argument about sustainable growth — revenue is one
+ * measure, but growth only counts when the people, culture and operations grow
+ * with it — put in the page's voice rather than quoted. It replaced a line
+ * about fostering belonging that any company could have published, and it is
+ * what the headline stands on. Learn & grow has since been folded into Growth
+ * & learning. One team and Belong & connect are in git, as are the two cells
+ * cut in the trim to three — see REASONS.
  *
  * Every cell in that grid is the same cell. Nothing is picked out.
  */
@@ -66,8 +70,8 @@ const REASONS: Cell[] = [
   },
   {
     name: "Growth & learning",
-    lead: "Always learning. Always creating value.",
-    body: "Develop your knowledge and skills through training, professional certifications and structured learning, alongside professionals from diverse backgrounds you can learn from directly. Knowledge sharing and new ideas are how both our people and our business get to the next stage.",
+    lead: "Always learning.",
+    body: "Training, certifications and structured learning, alongside experts you can learn from directly.",
   },
 ];
 
@@ -102,7 +106,7 @@ export default function CultureSection() {
               style={stagger(1)}
               className="mt-7 font-display text-display-sm leading-[1.05] font-bold tracking-[-0.02em] text-balance uppercase"
             >
-              No ceiling we&apos;ve found yet.
+              We grow the people, or we don&apos;t grow.
             </h2>
           </div>
 
@@ -115,10 +119,9 @@ export default function CultureSection() {
               People here are given work slightly ahead of what they have done
               before, and experts from the group&apos;s practice review it —
               which is how a team triples in three years without the standard
-              slipping. At DDAM we foster a culture where people continue to
-              learn, collaborate as one team and feel a true sense of
-              belonging, because individual growth and shared success are the
-              same thing here.
+              slipping. Revenue is one measure of what we contribute to the
+              group, but it is not the one that lasts. Growth only counts when
+              the people, the culture and the way we work grow with it.
             </p>
           </div>
         </Reveal>
