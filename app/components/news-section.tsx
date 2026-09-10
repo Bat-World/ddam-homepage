@@ -4,7 +4,11 @@ import Reveal from "./reveal";
 import { stagger } from "./stagger";
 
 /**
- * Field notes — the page's one piece of published thinking.
+ * News — the page's one piece of published thinking.
+ *
+ * Labelled "News" rather than "Field notes", and without the standfirst that
+ * used to sit under the label: the row itself says what the piece is, so the
+ * section goes straight from its label to the list.
  *
  * This was three headlines and a "Latest updates" kicker. Two of the three
  * pointed at `#news`, the id of the section they were already inside, and so
@@ -37,23 +41,12 @@ export default function NewsSection() {
           data-reveal
           className="font-mono text-size2 tracking-[0.16em] text-text-3 uppercase"
         >
-          Field notes
-        </p>
-
-        <p
-          data-reveal
-          style={stagger(1)}
-          className="mt-8 max-w-2xl text-lead leading-[1.65] text-light-gray"
-        >
-          We would rather publish the method than the claim. This is how we run
-          a first AI project — how the question gets scoped, what has to be
-          agreed before it starts, and what we tell a client when the answer is
-          no.
+          News
         </p>
 
         <ul className="mt-12 border-t border-mixed/50">
           {NEWS.map((item, i) => (
-            <li key={item.title} data-reveal style={stagger(i + 2, 110)}>
+            <li key={item.title} data-reveal style={stagger(i + 1, 110)}>
               {/* next/link, not a bare anchor: these leave the route, and as a
                   plain <a> the click was a full document load that remounted
                   the launch overlay and replayed the intro over the article.
