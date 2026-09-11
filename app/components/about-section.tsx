@@ -38,15 +38,15 @@ import { stagger } from "./stagger";
 const CORE = [
   {
     name: "AI & data",
-    body: "Machine learning built on data engineering we did ourselves, so the model and the pipeline under it answer to one team.",
+    body: "Models and the pipelines that feed them, built by one team — ingestion, feature engineering, training and retraining under the same review.",
   },
   {
     name: "Cloud native",
-    body: "Scalable backends built to the review standards of the group's Tokyo practice, not to whatever ships fastest.",
+    body: "Infrastructure as code, containerised services, CI and staged deploys — held to the review standards of the group's Tokyo practice, not to whatever ships fastest.",
   },
   {
-    name: "Agile PoC",
-    body: "Rapid prototyping with no platform lock-in, so a no costs you nothing you cannot walk away from.",
+    name: "Handover, not lock-in",
+    body: "Prototypes are built without platform lock-in, so if the answer is no, nothing is stranded.",
   },
 ];
 
