@@ -56,14 +56,14 @@ const PILLARS = [
     lead: "Prove it before you build it.",
     label: "By bringing solutions to our clients' business",
     ja: "ビジネスへのソリューション",
-    body: "No company can know whether applying AI will help its business until the hypothesis is tested. So we test it first — a funded proof of concept returning a working prototype, an honest cost model and a clear go or no-go, where logical thinking, performance speed and affordable cost are all vital. We provide the three of them without compromising quality.",
+    body: "No company can know whether applying AI will help its business until the hypothesis is tested. So we test it first — a funded proof of concept returning a working prototype, an honest cost model and a clear go or no-go. Including the no. That answer costs far less here than it does a year into a build.",
   },
   {
     surface: "bg-red text-brand-black",
     lead: "No ceiling we have found yet.",
     label: "By providing opportunities to our members",
     ja: "DDAMメンバーに機会提供",
-    body: "The energy here comes from the same place the standard does. As a company that depends on human intelligence, we give our members work slightly ahead of what they have done before: global clients, under the mentorship of experts in the field, practising the soft skills that carry a career as well as the hard ones. Nobody has yet found the top of what this team can take on.",
+    body: "The energy here comes from the people, not the technology. This is a young and ambitious team, and we give our members work slightly ahead of what they have done before — global clients, experts reviewing it, real responsibility early. That is how the company tripled in three years, and nobody has yet found the top of what this team can take on.",
   },
 ];
 
