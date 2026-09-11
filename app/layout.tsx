@@ -110,6 +110,46 @@ const ORGANIZATION_JSON_LD = {
   },
 };
 
+/*
+ * A reload starts at the top of the page, not where the reader left off.
+ *
+ * The browser restores the scroll position on a reload by default, which put
+ * the launch intro over the middle of the page and left the visitor somewhere
+ * past the hero it exists to reveal. Refreshing is asking to start again, so
+ * this makes it do that.
+ *
+ * How, and why this way. Measured in Chrome, setting `scrollRestoration` to
+ * "manual" during the reload is too late: the browser has already decided to
+ * restore, jumps back down, and anything that then scrolls to the top does it
+ * in view of the reader. The mode has to be on the history entry when the old
+ * document is left, so it is set on `pagehide`, which a reload fires. Once the
+ * new document has loaded it goes back to "auto", so client-side Back inside
+ * the site (/leadership -> Back to the homepage) still returns to where the
+ * reader was.
+ *
+ * The one cost: a reader who leaves for another site and comes Back, on a
+ * browser that does not keep the page in its back-forward cache, starts at the
+ * top too. A bfcache restore brings the page back live, position included.
+ *
+ * On a reload the script also scrolls to the top on load, instantly — the page
+ * sets `scroll-behavior: smooth` on <html>, and a plain scrollTo would glide —
+ * as a fallback for a browser that restores anyway, and it drops a hash, since
+ * `/#news` would otherwise jump to News: a refresh after following "← Home"
+ * from /news would look exactly like the thing this fixes.
+ *
+ * Inline and first in <head> so it runs before anything is painted.
+ */
+const RELOAD_TO_TOP = `(function(){try{
+var h=window.history;
+window.addEventListener("pagehide",function(){h.scrollRestoration="manual"});
+window.addEventListener("pageshow",function(e){if(e.persisted)h.scrollRestoration="auto"});
+var nav=performance.getEntriesByType("navigation")[0];
+var reload=!!nav&&nav.type==="reload";
+if(reload&&location.hash)h.replaceState(h.state,"",location.pathname+location.search);
+var settle=function(){if(reload)window.scrollTo({top:0,left:0,behavior:"instant"});h.scrollRestoration="auto"};
+if(document.readyState==="complete")settle();else window.addEventListener("load",function(){requestAnimationFrame(settle)});
+}catch(e){}})();`;
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -117,6 +157,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${archivo.variable} ${azeretMono.variable} h-full antialiased`}
     >
       <head>
+        {/* First in <head>: it has to run before the browser restores scroll. */}
+        <script dangerouslySetInnerHTML={{ __html: RELOAD_TO_TOP }} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
