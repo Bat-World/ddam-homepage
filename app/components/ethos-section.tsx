@@ -46,7 +46,7 @@ import { stagger } from "./stagger";
 const PILLARS = [
   {
     surface: "bg-brand-black text-brand-white",
-    lead: "AI alone isn't enough.",
+    lead: "The hard part is using it.",
     label: "By leading AI implementation in society",
     ja: "AIの社会実装をリード",
     body: "Although we live in an era of technology, its practical implementation in society remains behind. As a technology company specialising in AI, we treat AI as the tool for solving real problems and making a better environment for others.",
