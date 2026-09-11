@@ -4,12 +4,15 @@ import { stagger } from "./stagger";
 
 /** Closing conversion block: one statement, one action, the details beneath. */
 
-const EMAIL = "info@mn.data-artist.com";
+const EMAIL = "ddam@group.data-artist.com";
+const PHONE = "(+976) 77 11 33 26";
+const ADDRESS =
+  "Altan Joloo Tower 6F, Seoul street, 5th khoroolol, 3rd khoroo, Sukhbaatar district, Ulaanbaatar Mongolia, 14252.";
 
 const DETAILS = [
-  ["Office", "Ulaanbaatar, Mongolia"],
   ["Email", EMAIL],
-  ["Enquiries", "New business · partnerships · press"],
+  ["Phone", PHONE],
+  ["Visit us", ADDRESS],
 ];
 
 export default function ContactSection() {

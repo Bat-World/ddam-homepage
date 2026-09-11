@@ -97,11 +97,15 @@ const ORGANIZATION_JSON_LD = {
   url: SITE_URL,
   logo: `${SITE_URL}/icon.svg`,
   description: DESCRIPTION,
-  email: "info@mn.data-artist.com",
+  email: "ddam@group.data-artist.com",
+  telephone: "+976 77 11 33 26",
   parentOrganization: { "@type": "Organization", name: "Dentsu Digital Inc." },
   address: {
     "@type": "PostalAddress",
+    streetAddress:
+      "Altan Joloo Tower 6F, Seoul street, 5th khoroolol, 3rd khoroo, Sukhbaatar district",
     addressLocality: "Ulaanbaatar",
+    postalCode: "14252",
     addressCountry: "MN",
   },
 };

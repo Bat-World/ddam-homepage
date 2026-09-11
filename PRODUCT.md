@@ -14,7 +14,7 @@ Secondary (confirmed, served by the careers section): Mongolian data, AI, engine
 
 ## Product Purpose
 
-Dentsu Data Artist Mongol LLC is a Mongolian AI, data and digital-marketing consultancy operating as a subsidiary of Dentsu Digital Inc. within the dentsu group. The homepage exists to establish credibility with enterprise buyers and open a conversation. Success is a qualified new-business enquiry to `info@mn.data-artist.com`.
+Dentsu Data Artist Mongol LLC is a Mongolian AI, data and digital-marketing consultancy operating as a subsidiary of Dentsu Digital Inc. within the dentsu group. The homepage exists to establish credibility with enterprise buyers and open a conversation. Success is a qualified new-business enquiry to `ddam@group.data-artist.com`.
 
 ## Core Concept
 
@@ -57,7 +57,7 @@ Buyers evaluate on a desktop during a working day, often after an internal refer
 - Legal entity name **Dentsu Data Artist Mongol LLC**; parent **Dentsu Digital Inc.**; network **dentsu group**. These names, their casing, and the logo lockup must stay factually correct.
 - No formal dentsu brand guideline is enforced on this site. Palette, typography, motion and layout are the project's own and may evolve freely.
 - Roc Grotesk is referenced first in `--font-display` as an aspirational licensed face, with Archivo (OFL) as the shipped stand-in. This is a convenience hook, **not** a binding brand requirement.
-- Contact address: `info@mn.data-artist.com`. Office: Ulaanbaatar, Mongolia.
+- Contact: `ddam@group.data-artist.com`, (+976) 77 11 33 26. Office: Altan Joloo Tower 6F, Seoul street, 5th khoroolol, 3rd khoroo, Sukhbaatar district, Ulaanbaatar Mongolia, 14252.
 
 ## Evidence on Hand
 
