@@ -14,12 +14,11 @@ import { stagger } from "./stagger";
  * stayed behind in About is the evidence for it: the offices, the group, the
  * technical core.
  *
- * Two paragraphs, not one. The first is the argument (origin, standard, the
- * inversion); the second is what follows from it (the method, and the growth
- * record — 2018, ~150 today, tripled in three years). The growth line stays a
- * sentence in the prose rather than becoming a figure in a box, because a stat
- * block would read as a claim about scale and the sentence reads as a fact
- * about the team.
+ * One paragraph: the argument (origin, standard, the inversion). A second one
+ * used to follow with the method and the growth record (~150 today, tripled in
+ * three years); it was cut, and both facts still stand elsewhere — the growth
+ * record in HistorySection's 2026 entry and in People & culture, the method in
+ * the pillars below and in ServiceOrbit.
  *
  * The three pillars carry the same concept at three levels — 01 why the
  * company exists, 02 how it works for a client, 03 where its energy comes
@@ -104,19 +103,7 @@ export default function EthosSection() {
               companies this young earn that standard afterwards; we inherited
               it first.
             </p>
-            <p
-              data-reveal
-              style={stagger(3)}
-              className="mt-6 max-w-2xl text-lead leading-[1.65]"
-            >
-              So proving things before they are trusted is not a service we
-              added later. It is where we came from, and it is still the
-              method: scope against a decision the business already makes,
-              engineer the data that feeds it, stay on after launch to prove
-              the number moved. Approximately 150 people today, having tripled
-              in three years, delivered from Ulaanbaatar.
-            </p>
-            <div data-reveal style={stagger(4)}>
+            <div data-reveal style={stagger(3)}>
               <BracketLink href="#careers" className="mt-9 -ml-2">
                 Join us
               </BracketLink>
