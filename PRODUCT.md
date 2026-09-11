@@ -41,7 +41,7 @@ Four practices run by one delivery team:
 - Proof of Concept & R&D — short funded experiments producing a working prototype, an honest cost model, and a go/no-go.
 - Digital Marketing — performance, brand and CRM run on the same data spine.
 
-Buyers evaluate on a desktop during a working day, often after an internal referral. The homepage is a single scrolling page with anchor navigation (`#services`, `#about`, `#leadership`, `#careers`, `#contact`). Two routes sit outside it, each because its content is longer than a band can hold: `/news/…` for a published article, and `/leadership` for the president's message in full. Both are summarised by a homepage band that links to them; neither is reachable any other way.
+Buyers evaluate on a desktop during a working day, often after an internal referral. The homepage is a single scrolling page with anchor navigation (`#services`, `#about`, `#leadership`, `#careers`, `#contact`). Three routes sit outside it, each because its content is longer than a band can hold: `/news` for the full news list, `/news/…` for a published article, and `/leadership` for the president's message in full. Each is summarised by a homepage band that links to it. News items must stay on record: the list in `app/components/news.ts` is built only from the article, the president's message and the History milestones.
 
 ## Capabilities and Constraints
 

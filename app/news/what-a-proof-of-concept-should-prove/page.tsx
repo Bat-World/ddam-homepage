@@ -138,10 +138,10 @@ export default function ProofOfConceptArticle() {
                 start with `#`, so nothing here is being taken away from it. */}
             <Link
               data-reveal
-              href="/#news"
+              href="/news"
               className="hover-mark hover-mark-flush font-mono text-size2 tracking-[0.16em] text-text-3 uppercase"
             >
-              ← Latest updates
+              ← All news
             </Link>
 
             <div
