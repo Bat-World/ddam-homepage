@@ -9,8 +9,8 @@ import { stagger } from "./stagger";
  *
  * A preview rather than the archive: every row past three pushes Careers
  * further down for a visitor who came for the company, not the back catalogue.
- * "See all news" sits at both ends of the band — beside the label for a reader
- * scanning the page, and under the list for one who has just read it.
+ * "See all news" sits once, beside the label. A second copy under the list was
+ * tried and cut: two identical CTAs a screen apart read as a layout fault.
  *
  * Every item is on record; news.ts says where each one comes from, and why the
  * company announcements are rows rather than links.
@@ -42,12 +42,6 @@ export default function NewsSection() {
           delayFrom={2}
           className="mt-12"
         />
-
-        <div data-reveal style={stagger(PREVIEW + 2, 110)}>
-          <BracketLink href="/news" className="mt-12 -ml-2 text-bg-secondary">
-            See all news
-          </BracketLink>
-        </div>
       </Reveal>
     </section>
   );
